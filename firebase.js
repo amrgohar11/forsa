@@ -163,13 +163,20 @@ async function fbGetOrders() {
 async function fbGetOrdersByPhone(phone) {
   if (!db) return null;
   try {
-    const snapshot = await db.collection("orders")
-      .where("phone", "==", phone)
-      .orderBy("createdAt", "desc")
-      .get();
+    // نجيب كل الطلبات، ونفلتر في الكود (بدل query معقد)
+    const snapshot = await db.collection("orders").get();
     const orders = [];
     snapshot.forEach(doc => {
-      orders.push({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      if (data.phone === phone) {
+        orders.push({ id: doc.id, ...data });
+      }
+    });
+    // رتّب في الكود بدل Firebase
+    orders.sort((a, b) => {
+      const dateA = a.createdAt?.toDate?.() || 0;
+      const dateB = b.createdAt?.toDate?.() || 0;
+      return dateB - dateA;
     });
     return orders;
   } catch (e) {
