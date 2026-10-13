@@ -1,0 +1,160 @@
+{
+  "categories": [
+    { "id": "earbuds", "name": "إيربودز", "icon": "🎧" },
+    { "id": "watches", "name": "ساعات سمارت", "icon": "⌚" },
+    { "id": "headphones", "name": "هيدفونات", "icon": "🎵" },
+    { "id": "speakers", "name": "سبيكرات", "icon": "🔊" },
+    { "id": "chargers", "name": "شواحن", "icon": "🔌" },
+    { "id": "cables", "name": "كابلات", "icon": "🔗" },
+    { "id": "mobile", "name": "إكسسوارات موبايل", "icon": "📱" },
+    { "id": "gaming", "name": "جيمنج", "icon": "🎮" }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "AirPods Pro 2",
+      "category": "earbuds",
+      "price": 1200,
+      "oldPrice": 1500,
+      "icon": "🎧",
+      "image": "https://files.catbox.moe/4maqky.png",
+      "images": [
+        "https://files.catbox.moe/4maqky.png"
+      ],
+      "badge": "الأكثر مبيعًا",
+      "description": "إيربودز أصلية بجودة صوت عالية وعزل ضوضاء",
+      "longDescription": "إيربودز AirPods Pro 2 بجودة صوت عالية وعزل ضوضاء نشط (ANC). بطارية تدوم حتى 6 ساعات متواصلة مع علبة الشحن. تصميم مريح للأذن مع مقاومة للماء والعرق (IPX4). تدعم الشحن اللاسلكي والتحكم باللمس.",
+      "features": [
+        "عزل ضوضاء نشط (ANC)",
+        "بطارية تدوم 6 ساعات",
+        "مقاومة للماء IPX4",
+        "شحن لاسلكي",
+        "تحكم باللمس"
+      ],
+      "rating": 4.8,
+      "reviewsCount": 124,
+      "inStock": true,
+      "sku": "FORSA-AP-PRO2"
+    },
+    {
+      "id": 2,
+      "name": "Smart Watch Series 9",
+      "category": "watches",
+      "price": 950,
+      "oldPrice": 0,
+      "icon": "⌚",
+      "image": "",
+      "images": [],
+      "badge": "جديد",
+      "description": "ساعة سمارت بشاشة AMOLED وبطارية تدوم 7 أيام",
+      "longDescription": "ساعة سمارت Series 9 بشاشة AMOLED عالية الدقة. تدعم مراقبة معدل ضربات القلب، وقياس الأكسجين في الدم، وتتبع النوم. بطارية تدوم حتى 7 أيام. مقاومة للماء IP68. تدعم الإشعارات والمكالمات عبر البلوتوث.",
+      "features": [
+        "شاشة AMOLED",
+        "بطارية 7 أيام",
+        "مراقبة النبض",
+        "قياس الأكسجين",
+        "مقاومة للماء IP68"
+      ],
+      "rating": 4.6,
+      "reviewsCount": 87,
+      "inStock": true,
+      "sku": "FORSA-SW-S9"
+    },
+    {
+      "id": 3,
+      "name": "Bluetooth Headphones",
+      "category": "headphones",
+      "price": 700,
+      "oldPrice": 900,
+      "icon": "🎵",
+      "image": "",
+      "images": [],
+      "badge": "",
+      "description": "هيدفون بلوتوث بجودة صوت نقية",
+      "longDescription": "هيدفون بلوتوث بجودة صوت نقية وباس عميق. بطارية تدوم حتى 20 ساعة. تصميم مريح للاستخدام الطويل. مايك مدمج للمكالمات. طي قابل للتخزين.",
+      "features": [
+        "بطارية 20 ساعة",
+        "باس عميق",
+        "مايك مدمج",
+        "تصميم قابل للطي",
+        "بلوتوث 5.3"
+      ],
+      "rating": 4.5,
+      "reviewsCount": 56,
+      "inStock": true,
+      "sku": "FORSA-BH-01"
+    },
+    {
+      "id": 4,
+      "name": "Portable Speaker",
+      "category": "speakers",
+      "price": 550,
+      "oldPrice": 0,
+      "icon": "🔊",
+      "image": "",
+      "images": [],
+      "badge": "عرض",
+      "description": "سبيكر محمول بصوت قوي ومقاوم للماء",
+      "longDescription": "سبيكر بلوتوث محمول بصوت قوي ونقي. مقاوم للماء IPX7. بطارية تدوم حتى 12 ساعة. يدعم البلوتوث وبطاقة الذاكرة. تصميم صغير يسهل حمله.",
+      "features": [
+        "صوت قوي",
+        "مقاوم للماء IPX7",
+        "بطارية 12 ساعة",
+        "يدعم البلوتوث",
+        "يدعم بطاقة SD"
+      ],
+      "rating": 4.7,
+      "reviewsCount": 92,
+      "inStock": true,
+      "sku": "FORSA-SP-01"
+    },
+    {
+      "id": 5,
+      "name": "Fast Charger 65W",
+      "category": "chargers",
+      "price": 350,
+      "oldPrice": 450,
+      "icon": "🔌",
+      "image": "",
+      "images": [],
+      "badge": "",
+      "description": "شاحن سريع 65 واط بمنفذين USB-C",
+      "longDescription": "شاحن سريع 65 واط بمنفذين USB-C و USB-A. يدعم الشحن السريع للهواتف واللابتوبات. حماية من الحرارة والجهد الزائد. تصميم صغير الحجم.",
+      "features": [
+        "قدرة 65 واط",
+        "منفذين USB-C و USB-A",
+        "حماية متعددة",
+        "حجم صغير",
+        "شحن سريع"
+      ],
+      "rating": 4.9,
+      "reviewsCount": 210,
+      "inStock": true,
+      "sku": "FORSA-CH-65W"
+    },
+    {
+      "id": 6,
+      "name": "USB-C Cable",
+      "category": "cables",
+      "price": 120,
+      "oldPrice": 0,
+      "icon": "🔗",
+      "image": "",
+      "images": [],
+      "badge": "",
+      "description": "كابل USB-C معزز للشحن السريع",
+      "longDescription": "كابل USB-C معزز للشحن السريع ونقل البيانات. يدعم شحن حتى 100 واط. طول 1.5 متر. مواد متينة تتحمل الاستخدام اليومي.",
+      "features": [
+        "يدعم 100 واط",
+        "طول 1.5 متر",
+        "نقل بيانات سريع",
+        "مواد متينة",
+        "متوافق مع كل الأجهزة"
+      ],
+      "rating": 4.4,
+      "reviewsCount": 45,
+      "inStock": true,
+      "sku": "FORSA-CB-USBC"
+    }
+  ]
+}

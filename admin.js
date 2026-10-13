@@ -1,0 +1,267 @@
+const STORAGE_KEY = "forsa_products";
+let allData = { categories: [], products: [] };
+let editId = null;
+
+// ========== LOAD DATA ==========
+async function loadData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    allData = JSON.parse(saved);
+  } else {
+    allData = {
+      categories: [
+        { id: "earbuds", name: "إيربودز", icon: "🎧" },
+        { id: "watches", name: "ساعات سمارت", icon: "⌚" },
+        { id: "headphones", name: "هيدفونات", icon: "🎵" },
+        { id: "speakers", name: "سبيكرات", icon: "🔊" },
+        { id: "chargers", name: "شواحن", icon: "🔌" },
+        { id: "cables", name: "كابلات", icon: "🔗" },
+        { id: "mobile", name: "إكسسوارات موبايل", icon: "📱" },
+        { id: "gaming", name: "جيمنج", icon: "🎮" }
+      ],
+      products: []
+    };
+    try {
+      const res = await fetch("products.json");
+      if (res.ok) allData = await res.json();
+    } catch (e) {}
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+  }
+  renderTable();
+  populateCategories();
+  updateStats();
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+}
+
+// ========== STATS ==========
+function updateStats() {
+  document.getElementById("stat-products").textContent = allData.products.length;
+  document.getElementById("stat-categories").textContent = allData.categories.length;
+  document.getElementById("stat-offers").textContent = allData.products.filter(p => p.oldPrice && p.oldPrice > p.price).length;
+}
+
+// ========== RENDER TABLE ==========
+function renderTable(filter = "") {
+  const tbody = document.getElementById("admin-products-body");
+  let products = allData.products;
+  if (filter) {
+    const q = filter.toLowerCase();
+    products = products.filter(p => p.name.toLowerCase().includes(q));
+  }
+
+  if (products.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color: var(--gray); padding: 40px;">لا توجد منتجات</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = products.map((p, i) => {
+    const cat = allData.categories.find(c => c.id === p.category);
+    return `
+      <tr>
+        <td>${i + 1}</td>
+        <td>${p.image ? `<img src="${p.image}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;vertical-align:middle;margin-left:8px;" />` : (p.icon || "📦")} ${p.name}</td>
+        <td>${cat ? cat.name : "-"}</td>
+        <td style="color: var(--lime); font-weight: 700;">${p.price} جنيه</td>
+        <td style="color: var(--gray); text-decoration: line-through;">${p.oldPrice && p.oldPrice > p.price ? p.oldPrice + " جنيه" : "-"}</td>
+        <td>${p.badge || "-"}</td>
+        <td>
+          <button class="btn-blue" onclick="editProduct(${p.id})" style="padding:8px 12px; font-size:13px;">✏️ تعديل</button>
+          <button class="btn-red" onclick="deleteProduct(${p.id})" style="padding:8px 12px; font-size:13px;">🗑️ حذف</button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function filterTable() {
+  renderTable(document.getElementById("admin-search").value);
+}
+
+function populateCategories() {
+  const select = document.getElementById("p-category");
+  select.innerHTML = allData.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
+}
+
+// ========== OPEN MODAL ==========
+function openProductModal(product = null) {
+  editId = product ? product.id : null;
+  document.getElementById("modal-title").textContent = product ? "تعديل منتج" : "إضافة منتج";
+  document.getElementById("p-id").value = product ? product.id : "";
+  document.getElementById("p-name").value = product ? product.name : "";
+  document.getElementById("p-category").value = product ? product.category : (allData.categories[0]?.id || "");
+  document.getElementById("p-price").value = product ? product.price : "";
+  document.getElementById("p-oldprice").value = product && product.oldPrice ? product.oldPrice : "";
+  document.getElementById("p-icon").value = product ? product.icon || "" : "";
+  document.getElementById("p-image").value = product ? product.image || "" : "";
+  document.getElementById("p-images").value = product && product.images ? product.images.join("\n") : "";
+  document.getElementById("p-badge").value = product ? product.badge || "" : "";
+  document.getElementById("p-description").value = product ? product.description || "" : "";
+  document.getElementById("p-longdescription").value = product ? product.longDescription || "" : "";
+  document.getElementById("p-features").value = product && product.features ? product.features.join("\n") : "";
+  document.getElementById("p-rating").value = product && product.rating ? product.rating : 4.5;
+  document.getElementById("p-reviews").value = product && product.reviewsCount ? product.reviewsCount : 0;
+  document.getElementById("p-sku").value = product ? product.sku || "" : "";
+  document.getElementById("p-instock").checked = product ? (product.inStock !== false) : true;
+  document.getElementById("product-modal").classList.add("active");
+}
+
+function closeProductModal(e) {
+  if (!e || e.target.id === "product-modal") {
+    document.getElementById("product-modal").classList.remove("active");
+  }
+}
+
+// ========== SAVE PRODUCT ==========
+function saveProduct(e) {
+  e.preventDefault();
+  const oldPrice = parseFloat(document.getElementById("p-oldprice").value) || 0;
+  const price = parseFloat(document.getElementById("p-price").value);
+
+  // معالجة الصور المتعددة
+  const imagesText = document.getElementById("p-images").value.trim();
+  const images = imagesText ? imagesText.split("\n").map(s => s.trim()).filter(Boolean) : [];
+
+  // معالجة المميزات
+  const featuresText = document.getElementById("p-features").value.trim();
+  const features = featuresText ? featuresText.split("\n").map(s => s.trim()).filter(Boolean) : [];
+
+  const mainImage = document.getElementById("p-image").value.trim();
+  if (images.length === 0 && mainImage) images.push(mainImage);
+
+  const product = {
+    id: editId || Date.now(),
+    name: document.getElementById("p-name").value,
+    category: document.getElementById("p-category").value,
+    price: price,
+    oldPrice: oldPrice > price ? oldPrice : 0,
+    icon: document.getElementById("p-icon").value,
+    image: mainImage,
+    images: images,
+    badge: document.getElementById("p-badge").value,
+    description: document.getElementById("p-description").value,
+    longDescription: document.getElementById("p-longdescription").value,
+    features: features,
+    rating: parseFloat(document.getElementById("p-rating").value) || 4.5,
+    reviewsCount: parseInt(document.getElementById("p-reviews").value) || 0,
+    sku: document.getElementById("p-sku").value,
+    inStock: document.getElementById("p-instock").checked
+  };
+
+  if (editId) {
+    const idx = allData.products.findIndex(p => p.id === editId);
+    allData.products[idx] = product;
+    showToast("✅ تم تعديل المنتج");
+  } else {
+    allData.products.push(product);
+    showToast("✅ تم إضافة المنتج");
+  }
+
+  saveData();
+  renderTable();
+  updateStats();
+  closeProductModal();
+}
+
+// ========== EDIT ==========
+function editProduct(id) {
+  const product = allData.products.find(p => p.id === id);
+  if (product) openProductModal(product);
+}
+
+// ========== DELETE ==========
+function deleteProduct(id) {
+  if (!confirm("هل أنت متأكد من حذف المنتج؟")) return;
+  allData.products = allData.products.filter(p => p.id !== id);
+  saveData();
+  renderTable();
+  updateStats();
+  showToast("🗑️ تم حذف المنتج");
+}
+
+// ========== EXPORT / IMPORT ==========
+function exportData() {
+  const dataStr = JSON.stringify(allData, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "forsa-products.json";
+  a.click();
+  showToast("⬇️ تم تصدير البيانات");
+}
+
+function importData() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "application/json";
+  input.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        allData = JSON.parse(ev.target.result);
+        saveData();
+        renderTable();
+        populateCategories();
+        updateStats();
+        showToast("✅ تم استيراد البيانات");
+      } catch {
+        showToast("❌ ملف غير صالح", true);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function resetData() {
+  if (!confirm("هل أنت متأكد من إعادة التعيين للبيانات الافتراضية؟")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+// ========== TOAST ==========
+function showToast(msg, isError = false) {
+  const existing = document.querySelector(".toast");
+  if (existing) existing.remove();
+  const t = document.createElement("div");
+  t.className = "toast" + (isError ? " error" : "");
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add("show"), 10);
+  setTimeout(() => {
+    t.classList.remove("show");
+    setTimeout(() => t.remove(), 300);
+  }, 2500);
+}
+
+// ========== UPLOAD TO FIREBASE ==========
+async function uploadToFirebase() {
+  if (typeof initFirebase !== "function") {
+    showToast("❌ Firebase مش محمّل", true);
+    return;
+  }
+  
+  if (!initFirebase()) {
+    showToast("❌ فشل الاتصال بـ Firebase", true);
+    return;
+  }
+  
+  if (!confirm("هيتم رفع كل المنتجات والأقسام على Firebase. متأكد؟")) return;
+  
+  showToast("⏳ جاري الرفع...");
+  
+  const success = await fbUploadAll(allData);
+  
+  if (success) {
+    showToast("✅ تم رفع البيانات على Firebase");
+  } else {
+    showToast("❌ فشل الرفع", true);
+  }
+}
+
+// ========== INIT ==========
+loadData();

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0A0C10" />
+  <title>لوحة تحكم FORSA</title>
+  <link rel="icon" href="assets/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-wrap { padding: 40px 0 80px; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; padding: 24px; background: var(--black-2); border-radius: var(--radius-lg); border: 1px solid var(--border); position: relative; overflow: hidden; }
+    .admin-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--lime), transparent);
+      animation: admin-header-shine 3s infinite;
+    }
+    @keyframes admin-header-shine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .admin-header h1 { font-size: 28px; font-weight: 900; }
+    .admin-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .btn-lime { background: var(--lime); color: var(--black); border: none; padding: 12px 22px; border-radius: 10px; font-weight: 800; cursor: pointer; font-family: 'Cairo', sans-serif; transition: var(--transition); }
+    .btn-lime:hover { transform: translateY(-2px); box-shadow: var(--shadow-lime); }
+    .btn-blue { background: var(--blue); color: white; border: none; padding: 12px 22px; border-radius: 10px; font-weight: 800; cursor: pointer; font-family: 'Cairo', sans-serif; transition: var(--transition); }
+    .btn-blue:hover { transform: translateY(-2px); box-shadow: var(--shadow-blue); }
+    .btn-red { background: var(--red); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: 'Cairo', sans-serif; transition: var(--transition); }
+    .btn-red:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255, 68, 68, 0.3); }
+    .btn-gray { background: var(--black-3); color: var(--white); border: 1px solid var(--border); padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-family: 'Cairo', sans-serif; transition: var(--transition); }
+    .btn-gray:hover { border-color: var(--lime); color: var(--lime); }
+
+    .admin-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--black-2); border: 1px solid var(--border); padding: 20px; border-radius: var(--radius-md); text-align: center; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--lime), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+    .stat-card:hover::before { transform: translateX(100%); }
+    .stat-card:hover { transform: translateY(-5px); border-color: var(--lime); box-shadow: 0 20px 40px rgba(184, 242, 58, 0.1); }
+    .stat-card strong { display: block; font-size: 32px; font-weight: 900; background: linear-gradient(135deg, var(--blue), var(--lime)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-card span { color: var(--gray); font-size: 14px; }
+
+    .admin-search { margin-bottom: 16px; }
+    .admin-search input { width: 100%; background: var(--black-2); border: 1px solid var(--border); color: var(--white); padding: 14px 18px; border-radius: 12px; font-family: 'Cairo', sans-serif; font-size: 15px; transition: var(--transition); }
+    .admin-search input:focus { outline: none; border-color: var(--lime); box-shadow: 0 0 0 3px rgba(184, 242, 58, 0.1); }
+
+    .admin-table { background: var(--black-2); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border); overflow-x: auto; }
+    .admin-table table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    .admin-table th, .admin-table td { padding: 16px; text-align: right; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .admin-table th { background: var(--black-3); font-weight: 800; color: var(--gray-light); }
+    .admin-table tr:last-child td { border-bottom: none; }
+    .admin-table tr:hover { background: var(--black-3); }
+
+    .admin-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 500; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s; }
+    .admin-modal-overlay.active { display: flex; }
+    .admin-modal { background: var(--black-2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; animation: modalIn 0.3s; }
+    .admin-modal h2 { margin-bottom: 20px; font-size: 24px; font-weight: 900; }
+    .admin-modal form { display: flex; flex-direction: column; gap: 12px; }
+    .admin-modal label { font-size: 13px; font-weight: 700; color: var(--gray-light); margin-bottom: -6px; }
+    .admin-modal input, .admin-modal select, .admin-modal textarea { background: var(--black); border: 1px solid var(--border); color: var(--white); padding: 12px 14px; border-radius: 10px; font-family: 'Cairo', sans-serif; font-size: 15px; transition: var(--transition); }
+    .admin-modal input:focus, .admin-modal select:focus, .admin-modal textarea:focus { outline: none; border-color: var(--lime); box-shadow: 0 0 0 3px rgba(184, 242, 58, 0.1); }
+    .modal-actions { display: flex; gap: 10px; margin-top: 10px; }
+    .modal-actions button { flex: 1; }
+    .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--gray-light); }
+    .checkbox-label input { width: auto; }
+
+    /* ===== Admin Tabs ===== */
+    .admin-tabs { display: flex; gap: 8px; margin-bottom: 24px; background: var(--black-2); padding: 6px; border-radius: 30px; width: fit-content; border: 1px solid var(--border); }
+    .admin-tab-btn { background: transparent; border: none; color: var(--gray); padding: 12px 28px; border-radius: 24px; font-weight: 700; cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 15px; transition: var(--transition); }
+    .admin-tab-btn.active { background: linear-gradient(135deg, var(--blue), var(--lime)); color: var(--black); }
+
+    /* ===== Orders ===== */
+    .order-status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; }
+    .order-status.new { background: rgba(23, 105, 255, 0.15); color: var(--blue-light); border: 1px solid rgba(23, 105, 255, 0.3); }
+    .order-status.shipped { background: rgba(184, 242, 58, 0.15); color: var(--lime); border: 1px solid rgba(184, 242, 58, 0.3); }
+    .order-status.delivered { background: rgba(76, 175, 80, 0.15); color: #4CAF50; border: 1px solid rgba(76, 175, 80, 0.3); }
+    .order-status.cancelled { background: rgba(255, 68, 68, 0.15); color: var(--red); border: 1px solid rgba(255, 68, 68, 0.3); }
+    .order-row-details { font-size: 12px; color: var(--gray-light); margin-top: 4px; }
+    .order-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .status-select { background: var(--black-3); border: 1px solid var(--border); color: var(--white); padding: 6px 10px; border-radius: 8px; font-family: 'Cairo', sans-serif; font-size: 13px; cursor: pointer; transition: var(--transition); }
+    .status-select:focus { outline: none; border-color: var(--lime); }
+    .orders-empty { text-align: center; padding: 60px 20px; color: var(--gray); }
+    .orders-empty .empty-icon { font-size: 64px; opacity: 0.5; margin-bottom: 16px; }
+    .order-customer { font-weight: 700; }
+    .order-phone { color: var(--blue-light); font-size: 13px; }
+    .order-total { color: var(--lime); font-weight: 900; font-size: 16px; }
+    .order-date { color: var(--gray); font-size: 12px; }
+    .hidden { display: none !important; }
+
+    /* ===== Logout Button ===== */
+    .logout-btn {
+      background: rgba(255, 68, 68, 0.15);
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      color: var(--red);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: 'Cairo', sans-serif;
+      font-size: 13px;
+      transition: var(--transition);
+    }
+    .logout-btn:hover {
+      background: rgba(255, 68, 68, 0.25);
+      transform: translateY(-2px);
+    }
+    .topbar-actions { display: flex; gap: 12px; align-items: center; }
+  </style>
+</head>
+<body>
+
+  <!-- Scroll Progress Bar -->
+  <div class="scroll-progress" id="scroll-progress"></div>
+
+  <!-- Custom Cursor -->
+  <div class="custom-cursor" id="custom-cursor"></div>
+  <div class="custom-cursor-outline" id="custom-cursor-outline"></div>
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span>🔐 لوحة تحكم FORSA</span>
+      <div class="topbar-actions">
+        <button class="logout-btn" onclick="logoutAdmin()">🚪 تسجيل الخروج</button>
+        <a href="index.html" style="color: var(--black); font-weight: 800; text-decoration: none;">← رجوع للموقع</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container admin-wrap">
+    <div class="admin-header fade-up">
+      <h1 id="page-title">إدارة المنتجات</h1>
+      <div class="admin-actions" id="products-actions">
+        <button class="btn-lime" onclick="openProductModal()">➕ إضافة منتج</button>
+        <button class="btn-blue" onclick="exportData()">⬇️ تصدير</button>
+        <button class="btn-gray" onclick="importData()">⬆️ استيراد</button>
+        <button class="btn-blue" onclick="uploadToFirebase()">☁️ رفع على Firebase</button>
+        <button class="btn-red" onclick="resetData()">🔄 إعادة تعيين</button>
+      </div>
+      <div class="admin-actions hidden" id="orders-actions">
+        <button class="btn-blue" onclick="loadOrders()">🔄 تحديث الطلبات</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs fade-up">
+      <button class="admin-tab-btn active" onclick="switchAdminTab('products')" id="tab-products">📦 المنتجات</button>
+      <button class="admin-tab-btn" onclick="switchAdminTab('orders')" id="tab-orders">🛒 الطلبات</button>
+    </div>
+
+    <!-- Products Section -->
+    <div id="section-products">
+      <div class="admin-stats">
+        <div class="stat-card"><strong id="stat-products">0</strong><span>منتج</span></div>
+        <div class="stat-card"><strong id="stat-categories">0</strong><span>قسم</span></div>
+        <div class="stat-card"><strong id="stat-offers">0</strong><span>عرض</span></div>
+      </div>
+
+      <div class="admin-search">
+        <input type="text" id="admin-search" placeholder="🔍 ابحث عن منتج..." oninput="filterTable()" />
+      </div>
+
+      <div class="admin-table">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>المنتج</th>
+              <th>القسم</th>
+              <th>السعر</th>
+              <th>السعر القديم</th>
+              <th>شارة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="admin-products-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div id="section-orders" class="hidden">
+      <div class="admin-stats">
+        <div class="stat-card"><strong id="stat-orders-total">0</strong><span>إجمالي الطلبات</span></div>
+        <div class="stat-card"><strong id="stat-orders-new">0</strong><span>طلبات جديدة</span></div>
+        <div class="stat-card"><strong id="stat-orders-revenue">0</strong><span>إجمالي المبيعات (جنيه)</span></div>
+      </div>
+
+      <div class="admin-search">
+        <input type="text" id="orders-search" placeholder="🔍 ابحث برقم الموبايل أو اسم العميل..." oninput="filterOrders()" />
+      </div>
+
+      <div class="admin-table">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>التاريخ</th>
+              <th>العميل</th>
+              <th>الطلب</th>
+              <th>الإجمالي</th>
+              <th>الدفع</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="admin-orders-body"></tbody>
+        </table>
+      </div>
+
+      <div class="orders-empty hidden" id="orders-empty">
+        <div class="empty-icon">🛒</div>
+        <h3>لا توجد طلبات بعد</h3>
+        <p>لما عميل يعمل طلب، هيظهر هنا.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="admin-modal-overlay" id="product-modal" onclick="closeProductModal(event)">
+    <div class="admin-modal" onclick="event.stopPropagation()">
+      <h2 id="modal-title">إضافة منتج</h2>
+      <form id="product-form" onsubmit="saveProduct(event)">
+        <input type="hidden" id="p-id" />
+
+        <label>اسم المنتج</label>
+        <input type="text" id="p-name" placeholder="مثال: AirPods Pro 2" required />
+
+        <label>القسم</label>
+        <select id="p-category" required></select>
+
+        <label>السعر الحالي (جنيه)</label>
+        <input type="number" id="p-price" placeholder="249" required />
+
+        <label>السعر القديم (اختياري - لو فيه خصم)</label>
+        <input type="number" id="p-oldprice" placeholder="400" />
+
+        <label>أيقونة (اختياري)</label>
+        <input type="text" id="p-icon" placeholder="🎧" />
+
+        <label>رابط الصورة الرئيسية</label>
+        <input type="text" id="p-image" placeholder="https://files.catbox.moe/xxxxx.png" />
+
+        <label>صور متعددة (رابط في كل سطر)</label>
+        <textarea id="p-images" placeholder="https://example.com/img1.jpg&#10;https://example.com/img2.jpg"></textarea>
+
+        <label>شارة (اختياري)</label>
+        <input type="text" id="p-badge" placeholder="جديد / عرض / الأكثر مبيعًا" />
+
+        <label>وصف قصير</label>
+        <textarea id="p-description" placeholder="وصف قصير وجذاب"></textarea>
+
+        <label>الوصف الكامل</label>
+        <textarea id="p-longdescription" placeholder="وصف تفصيلي للمنتج..."></textarea>
+
+        <label>المميزات (ميزة في كل سطر)</label>
+        <textarea id="p-features" placeholder="عزل ضوضاء نشط&#10;بطارية تدوم 6 ساعات&#10;مقاومة للماء"></textarea>
+
+        <label>التقييم (من 1 لـ 5)</label>
+        <input type="number" id="p-rating" step="0.1" min="1" max="5" placeholder="4.5" />
+
+        <label>عدد التقييمات</label>
+        <input type="number" id="p-reviews" placeholder="124" />
+
+        <label>كود المنتج (SKU)</label>
+        <input type="text" id="p-sku" placeholder="FORSA-AP-PRO2" />
+
+        <label class="checkbox-label">
+          <input type="checkbox" id="p-instock" checked />
+          متوفر في المخزون
+        </label>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-lime">💾 حفظ</button>
+          <button type="button" class="btn-gray" onclick="closeProductModal()">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Order Details Modal -->
+  <div class="admin-modal-overlay" id="order-modal" onclick="closeOrderModal(event)">
+    <div class="admin-modal" onclick="event.stopPropagation()">
+      <h2>تفاصيل الطلب</h2>
+      <div id="order-details"></div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase.js"></script>
+
+  <!-- حماية لوحة التحكم -->
+  <script>
+    (function() {
+      if (typeof firebase === "undefined") {
+        console.warn("Firebase SDK not loaded");
+        return;
+      }
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      const auth = firebase.auth();
+      auth.onAuthStateChanged(user => {
+        if (!user) {
+          window.location.href = "login.html";
+        }
+      });
+    })();
+
+    function logoutAdmin() {
+      if (typeof firebase === "undefined") return;
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    }
+  </script>
+
+  <script src="admin.js"></script>
+  <script src="admin-orders.js"></script>
+  <script src="animations.js"></script>
+</body>
+</html>
