@@ -94,6 +94,30 @@
     </div>
   </section>
 
+  <!-- Reviews Section -->
+  <section class="reviews-section">
+    <div class="container">
+      <div class="section-head fade-up">
+        <span class="section-tag">⭐ آراء العملاء</span>
+        <h2 class="section-title">تقييمات <span class="gradient-text">العملاء</span></h2>
+      </div>
+
+      <div class="reviews-summary" id="reviews-summary">
+        <!-- سيتم ملؤها بالـ JS -->
+      </div>
+
+      <div class="review-action">
+        <button class="btn-primary" onclick="openReviewModal()">
+          ✍️ اكتب تقييمك
+        </button>
+      </div>
+
+      <div class="reviews-list" id="reviews-list">
+        <!-- سيتم ملؤها بالـ JS -->
+      </div>
+    </div>
+  </section>
+
   <!-- Related Products -->
   <section class="related-products">
     <div class="container">
@@ -212,6 +236,32 @@
 
         <textarea id="notes" placeholder="ملاحظات (اختياري)"></textarea>
         <button type="submit" class="btn-primary full">✅ تأكيد الطلب</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Review Modal -->
+  <div class="modal-overlay" id="review-modal-overlay" onclick="closeReviewModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeReviewModal(event, true)">✕</button>
+      <h3>اكتب تقييمك</h3>
+      <p class="modal-sub">شاركنا رأيك في المنتج</p>
+      <form id="review-form" onsubmit="submitReview(event)">
+        <input type="text" id="review-name" placeholder="اسمك" required />
+
+        <label class="review-label">التقييم:</label>
+        <div class="rating-input">
+          <span class="star-input" data-value="1" onclick="setRating(1)">★</span>
+          <span class="star-input" data-value="2" onclick="setRating(2)">★</span>
+          <span class="star-input" data-value="3" onclick="setRating(3)">★</span>
+          <span class="star-input" data-value="4" onclick="setRating(4)">★</span>
+          <span class="star-input" data-value="5" onclick="setRating(5)">★</span>
+        </div>
+        <input type="hidden" id="review-rating" value="5" />
+
+        <textarea id="review-comment" placeholder="اكتب تعليقك (اختياري)"></textarea>
+
+        <button type="submit" class="btn-primary full">✅ إرسال التقييم</button>
       </form>
     </div>
   </div>

@@ -18,6 +18,20 @@ let currentQty = 1;
 let urlParams = new URLSearchParams(window.location.search);
 let productId = urlParams.get("id");
 
+// ========== OBSERVER FOR FADE-UP ==========
+function observeFadeUp() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add("visible");
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+  document.querySelectorAll(".fade-up:not(.visible)").forEach(el => observer.observe(el));
+}
+
 // ========== LOAD DATA ==========
 async function loadData() {
   if (typeof initFirebase === "function" && initFirebase()) {
@@ -70,6 +84,7 @@ async function loadData() {
   renderProduct();
   renderBreadcrumbs();
   renderRelated();
+  loadReviews();
 }
 
 // ========== BREADCRUMBS ==========
@@ -208,9 +223,7 @@ function renderProduct() {
   `;
 
   document.getElementById("product-detail").innerHTML = html;
-  document.querySelectorAll(".fade-up").forEach(el => {
-    setTimeout(() => el.classList.add("visible"), 100);
-  });
+  observeFadeUp();
 }
 
 // ========== GALLERY ==========
@@ -401,7 +414,7 @@ async function saveOrderToFirebase(orderData) {
   }
 }
 
-// ========== SEND ORDER (بدون واتساب للعميل) ==========
+// ========== SEND ORDER ==========
 function sendWhatsApp(e) {
   e.preventDefault();
   const name = document.getElementById("name").value;
@@ -452,6 +465,146 @@ function sendWhatsApp(e) {
   updateCart();
   toggleCart();
   showToast("✅ تم تأكيد طلبك بنجاح");
+}
+
+// ========== REVIEWS ==========
+let currentRating = 5;
+
+async function loadReviews() {
+  if (typeof initFirebase !== "function" || !initFirebase()) {
+    console.warn("Firebase مش متاح - مش هنحمل التقييمات");
+    return;
+  }
+
+  const reviews = await fbGetReviewsByProduct(currentProduct.id) || [];
+  renderReviews(reviews);
+}
+
+function renderReviews(reviews) {
+  const summaryEl = document.getElementById("reviews-summary");
+  const listEl = document.getElementById("reviews-list");
+
+  if (!summaryEl || !listEl) return;
+
+  if (reviews.length === 0) {
+    summaryEl.innerHTML = "";
+    listEl.innerHTML = `
+      <div class="reviews-empty">
+        <div class="empty-icon">⭐</div>
+        <h3>مفيش تقييمات لسه</h3>
+        <p>كن أول من يقيّم المنتج ده</p>
+      </div>
+    `;
+    return;
+  }
+
+  const totalRating = reviews.reduce((sum, r) => sum + (r.rating || 0), 0);
+  const avgRating = (totalRating / reviews.length).toFixed(1);
+
+  const starCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  reviews.forEach(r => {
+    const rating = Math.round(r.rating || 0);
+    if (starCounts[rating] !== undefined) starCounts[rating]++;
+  });
+
+  summaryEl.innerHTML = `
+    <div class="reviews-summary-rating">
+      <div class="big-rating">${avgRating}</div>
+      <div class="big-stars">${"★".repeat(Math.round(avgRating))}${"☆".repeat(5 - Math.round(avgRating))}</div>
+      <div class="total-reviews">${reviews.length} تقييم</div>
+    </div>
+    <div class="reviews-summary-bars">
+      ${[5, 4, 3, 2, 1].map(star => {
+        const count = starCounts[star];
+        const percentage = (count / reviews.length) * 100;
+        return `
+          <div class="rating-bar-row">
+            <span class="rating-label">${star} ★</span>
+            <div class="rating-bar">
+              <div class="rating-bar-fill" style="width: ${percentage}%"></div>
+            </div>
+            <span class="rating-count">${count}</span>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+
+  listEl.innerHTML = reviews.map(r => {
+    const date = r.createdAt?.toDate
+      ? r.createdAt.toDate().toLocaleDateString("ar-EG")
+      : "";
+    const stars = "★".repeat(r.rating || 5) + "☆".repeat(5 - (r.rating || 5));
+    return `
+      <div class="review-card">
+        <div class="review-header">
+          <div class="review-author">${r.name || "عميل"}</div>
+          <div class="review-date">${date}</div>
+        </div>
+        <div class="review-stars">${stars}</div>
+        ${r.comment ? `<div class="review-comment">${r.comment}</div>` : ""}
+      </div>
+    `;
+  }).join("");
+}
+
+function openReviewModal() {
+  document.getElementById("review-modal-overlay").classList.add("active");
+  document.body.style.overflow = "hidden";
+  setRating(5);
+}
+
+function closeReviewModal(e, force = false) {
+  if (force || (e && e.target.id === "review-modal-overlay")) {
+    document.getElementById("review-modal-overlay").classList.remove("active");
+    document.body.style.overflow = "";
+    document.getElementById("review-form").reset();
+  }
+}
+
+function setRating(value) {
+  currentRating = value;
+  document.getElementById("review-rating").value = value;
+  document.querySelectorAll(".star-input").forEach(star => {
+    const starValue = parseInt(star.dataset.value);
+    star.classList.toggle("active", starValue <= value);
+  });
+}
+
+async function submitReview(e) {
+  e.preventDefault();
+
+  const name = document.getElementById("review-name").value.trim();
+  const rating = parseInt(document.getElementById("review-rating").value) || 5;
+  const comment = document.getElementById("review-comment").value.trim();
+
+  if (!name) {
+    showToast("⚠️ اكتب اسمك", true);
+    return;
+  }
+
+  if (typeof initFirebase !== "function" || !initFirebase()) {
+    showToast("❌ حصلت مشكلة، جرب تاني", true);
+    return;
+  }
+
+  const review = {
+    productId: currentProduct.id,
+    name: name,
+    rating: rating,
+    comment: comment,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  const reviewId = await fbAddReview(review);
+
+  if (reviewId) {
+    showToast("✅ تم إرسال تقييمك، شكرًا!");
+    closeReviewModal(null, true);
+    loadReviews();
+  } else {
+    showToast("❌ فشل إرسال التقييم", true);
+  }
 }
 
 // ========== RELATED ==========
@@ -506,17 +659,7 @@ function renderRelated() {
     `;
   }).join("");
 
-  document.querySelectorAll(".carousel-item .fade-up").forEach(el => {
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add("visible");
-          obs.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
-    obs.observe(el);
-  });
+  observeFadeUp();
 }
 
 function scrollRelated(dir) {

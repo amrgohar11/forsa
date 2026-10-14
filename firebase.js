@@ -9,8 +9,8 @@ const firebaseConfig = {
 };
 
 // ========== ADMIN SETTINGS ==========
-const ADMIN_PHONE = "201556687455"; // رقم الواتساب بتاعك (بصيغة دولية بدون +)
-const ADMIN_API_KEY = "6976391"; // اللي جبته من CallMeBot
+const ADMIN_PHONE = "201556687455";
+const ADMIN_API_KEY = "6976391";
 
 // ========== INITIALIZE FIREBASE ==========
 let db = null;
@@ -214,6 +214,55 @@ async function fbDeleteOrder(id) {
   }
 }
 
+// ========== REVIEWS HELPERS ==========
+
+// إضافة تقييم جديد
+async function fbAddReview(review) {
+  if (!db) return null;
+  try {
+    const docRef = await db.collection("reviews").add(review);
+    return docRef.id;
+  } catch (e) {
+    console.error("Error adding review:", e);
+    return null;
+  }
+}
+
+// جلب تقييمات منتج معين
+async function fbGetReviewsByProduct(productId) {
+  if (!db) return null;
+  try {
+    const snapshot = await db.collection("reviews")
+      .where("productId", "==", productId)
+      .get();
+    const reviews = [];
+    snapshot.forEach(doc => {
+      reviews.push({ id: doc.id, ...doc.data() });
+    });
+    reviews.sort((a, b) => {
+      const dateA = a.createdAt?.toDate?.() || 0;
+      const dateB = b.createdAt?.toDate?.() || 0;
+      return dateB - dateA;
+    });
+    return reviews;
+  } catch (e) {
+    console.error("Error getting reviews:", e);
+    return null;
+  }
+}
+
+// حذف تقييم (للأدمن)
+async function fbDeleteReview(id) {
+  if (!db) return false;
+  try {
+    await db.collection("reviews").doc(id).delete();
+    return true;
+  } catch (e) {
+    console.error("Error deleting review:", e);
+    return false;
+  }
+}
+
 // ========== SEND WHATSAPP NOTIFICATION TO ADMIN ==========
 async function sendAdminNotification(order) {
   if (!ADMIN_API_KEY || ADMIN_API_KEY === "ضع_API_KEY_هنا") {
@@ -222,12 +271,10 @@ async function sendAdminNotification(order) {
   }
 
   try {
-    // تجهيز المنتجات
     const itemsText = (order.items || [])
       .map(item => `• ${item.name} × ${item.qty} = ${item.price * item.qty} ج`)
       .join("\n");
 
-    // الرسالة
     const message =
 `🛒 *طلب جديد على FORSA*
 
@@ -246,10 +293,8 @@ ${order.notes ? "\n📝 *ملاحظات:* " + order.notes : ""}
 
 🕐 ${new Date().toLocaleString("ar-EG")}`;
 
-    // إرسال الإشعار
     const url = `https://api.callmebot.com/whatsapp.php?phone=${ADMIN_PHONE}&text=${encodeURIComponent(message)}&apikey=${ADMIN_API_KEY}`;
 
-    // استخدام fetch
     await fetch(url, { mode: "no-cors" });
 
     console.log("✅ تم إرسال الإشعار على واتساب");
