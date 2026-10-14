@@ -83,8 +83,112 @@ async function loadData() {
 
   renderProduct();
   renderBreadcrumbs();
+  updateMetaTags();
   renderRelated();
   loadReviews();
+}
+
+// ========== UPDATE META TAGS FOR SEO ==========
+function updateMetaTags() {
+  const p = currentProduct;
+  if (!p) return;
+
+  const baseUrl = "https://forsa-store.vercel.app";
+  const productUrl = `${baseUrl}/product.html?id=${p.id}`;
+  const productTitle = `${p.name} | FORSA`;
+  const productDesc = p.description
+    ? p.description.substring(0, 160)
+    : `اشترِ ${p.name} من FORSA بأفضل سعر. شحن 40 جنيه لكل المحافظات.`;
+
+  let productImage = `${baseUrl}/assets/logo.png`;
+  if (p.image) {
+    productImage = p.image.startsWith("http") ? p.image : `${baseUrl}/${p.image}`;
+  } else if (p.images && p.images.length > 0) {
+    const img = p.images[0];
+    productImage = img.startsWith("http") ? img : `${baseUrl}/${img}`;
+  }
+
+  // Title
+  document.title = productTitle;
+  const metaTitle = document.getElementById("meta-title");
+  if (metaTitle) metaTitle.setAttribute("content", productTitle);
+  const ogTitle = document.getElementById("og-title");
+  if (ogTitle) ogTitle.setAttribute("content", productTitle);
+  const twTitle = document.getElementById("twitter-title");
+  if (twTitle) twTitle.setAttribute("content", productTitle);
+
+  // Description
+  const metaDesc = document.getElementById("meta-description");
+  if (metaDesc) metaDesc.setAttribute("content", productDesc);
+  const ogDesc = document.getElementById("og-description");
+  if (ogDesc) ogDesc.setAttribute("content", productDesc);
+  const twDesc = document.getElementById("twitter-description");
+  if (twDesc) twDesc.setAttribute("content", productDesc);
+
+  // URL
+  const canonical = document.getElementById("canonical-link");
+  if (canonical) canonical.setAttribute("href", productUrl);
+  const ogUrl = document.getElementById("og-url");
+  if (ogUrl) ogUrl.setAttribute("content", productUrl);
+  const twUrl = document.getElementById("twitter-url");
+  if (twUrl) twUrl.setAttribute("content", productUrl);
+
+  // Image
+  const ogImg = document.getElementById("og-image");
+  if (ogImg) ogImg.setAttribute("content", productImage);
+  const twImg = document.getElementById("twitter-image");
+  if (twImg) twImg.setAttribute("content", productImage);
+
+  // Product Structured Data (Schema.org)
+  updateProductSchema(p, productUrl, productImage, productDesc);
+}
+
+// ========== PRODUCT SCHEMA.ORG ==========
+function updateProductSchema(p, url, image, desc) {
+  const existing = document.getElementById("product-schema");
+  if (existing) existing.remove();
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": p.name,
+    "description": desc,
+    "image": image,
+    "url": url,
+    "sku": p.sku || p.id,
+    "brand": {
+      "@type": "Brand",
+      "name": "FORSA"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": url,
+      "priceCurrency": "EGP",
+      "price": p.price,
+      "availability": p.inStock !== false
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      "seller": {
+        "@type": "Organization",
+        "name": "FORSA"
+      }
+    }
+  };
+
+  // أضف rating لو موجود
+  if (p.rating) {
+    schema.aggregateRating = {
+      "@type": "AggregateRating",
+      "ratingValue": p.rating,
+      "reviewCount": p.reviewsCount || 1
+    };
+  }
+
+  const script = document.createElement("script");
+  script.id = "product-schema";
+  script.type = "application/ld+json";
+  script.textContent = JSON.stringify(schema);
+  document.head.appendChild(script);
 }
 
 // ========== BREADCRUMBS ==========
