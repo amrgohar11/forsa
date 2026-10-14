@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0A0C10" />
+  <title>الشروط والأحكام | FORSA</title>
+  <meta name="description" content="الشروط والأحكام لاستخدام موقع FORSA والشراء منه." />
+  <link rel="canonical" href="https://forsa-store.vercel.app/terms.html" />
+  <link rel="icon" href="assets/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R99WPGR7PE"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-R99WPGR7PE');
+  </script>
+
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '2255667811643260');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=2255667811643260&ev=PageView&noscript=1"
+  /></noscript>
+
+  <style>
+    .legal-page { padding: 60px 0 100px; }
+    .legal-hero { text-align: center; margin-bottom: 48px; }
+    .legal-hero h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 900; margin: 16px 0 12px; }
+    .legal-hero p { color: var(--gray-light); font-size: 16px; }
+    .legal-content { max-width: 800px; margin: 0 auto; background: var(--black-2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 40px; }
+    .legal-content h2 { color: var(--lime); font-size: 22px; margin: 32px 0 12px; font-weight: 800; }
+    .legal-content h2:first-child { margin-top: 0; }
+    .legal-content p { color: var(--gray-light); line-height: 1.9; margin-bottom: 14px; font-size: 15px; }
+    .legal-content ul { color: var(--gray-light); line-height: 1.9; padding-right: 24px; margin-bottom: 14px; }
+    .legal-content li { margin-bottom: 8px; }
+    .legal-content strong { color: var(--white); font-weight: 800; }
+    .legal-updated { text-align: center; color: var(--gray); font-size: 13px; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+    @media (max-width: 768px) { .legal-content { padding: 24px; } .legal-content h2 { font-size: 18px; } }
+  </style>
+</head>
+<body>
+
+  <div class="scroll-progress" id="scroll-progress"></div>
+  <div class="custom-cursor" id="custom-cursor"></div>
+  <div class="custom-cursor-outline" id="custom-cursor-outline"></div>
+
+  <div class="luxury-loader" id="luxury-loader">
+    <img src="assets/logo.png" alt="FORSA" class="luxury-loader-logo" />
+    <div class="luxury-loader-text">FORSA</div>
+    <div class="luxury-loader-bar"></div>
+  </div>
+
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span>🚚 شحن 40 جنيه لكل المحافظات</span>
+      <span>⚡ عروض حصرية كل أسبوع</span>
+      <span>📞 01556687455</span>
+    </div>
+  </div>
+
+  <header class="header" id="header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <img src="assets/logo.png" alt="FORSA" class="logo-img" />
+        <span class="logo-text">FORSA</span>
+      </a>
+      <nav class="nav">
+        <a href="index.html">الرئيسية</a>
+        <a href="shop.html">كل المنتجات</a>
+        <a href="orders.html">طلباتي</a>
+        <a href="index.html#about">عن FORSA</a>
+        <a href="index.html#contact">تواصل</a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="openSearchModal()" title="بحث">🔍</button>
+        <button class="cart-btn" onclick="toggleCart()">
+          🛒 <span class="cart-text">السلة</span> <span class="cart-count" id="cart-count">0</span>
+        </button>
+        <button class="icon-btn menu-btn" onclick="toggleMenu()">☰</button>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav">
+      <a href="index.html">الرئيسية</a>
+      <a href="shop.html">كل المنتجات</a>
+      <a href="orders.html">طلباتي</a>
+      <a href="index.html#contact">تواصل</a>
+    </nav>
+  </header>
+
+  <section class="legal-page">
+    <div class="container">
+      <div class="legal-hero fade-up">
+        <span class="section-tag">📜 قانوني</span>
+        <h1>الشروط والأحكام</h1>
+        <p>اقرأ الشروط دي قبل ما تشتري من FORSA.</p>
+      </div>
+
+      <div class="legal-content fade-up">
+        <h2>1. الموافقة على الشروط</h2>
+        <p>لما تستخدم موقع <strong>FORSA</strong> أو تشتري منه، إنت بتوافق على الشروط والأحكام دي. لو مش موافق، ممكن متستخدمش الموقع.</p>
+
+        <h2>2. طبيعة الخدمة</h2>
+        <p>FORSA متجر مصري متخصص في بيع <strong>الإكسسوارات التقنية والموبايل</strong> بأسعار مناسبة. إحنا بنوفر:</p>
+        <ul>
+          <li>إيربودز وهيدفونات.</li>
+          <li>ساعات سمارت.</li>
+          <li>سبيكرات بلوتوث.</li>
+          <li>شواحن وكابلات.</li>
+          <li>إكسسوارات موبايل وجيمنج.</li>
+        </ul>
+
+        <h2>3. الطلبات والأسعار</h2>
+        <ul>
+          <li><strong>الأسعار:</strong> كل الأسعار بالجنيه المصري، وممكن تتغير من وقت للتاني.</li>
+          <li><strong>تأكيد الطلب:</strong> الطلب بيتأكد لما تتواصل معانا على واتساب.</li>
+          <li><strong>الحد الأدنى للطلب:</strong> مفيش حد أدنى، تقدر تطلب أي حاجة.</li>
+          <li><strong>توفر المنتج:</strong> بنحاول نوفر كل المنتجات، بس ممكن منتج يخلص من المخزن.</li>
+        </ul>
+
+        <h2>4. طرق الدفع</h2>
+        <p>بنقبل:</p>
+        <ul>
+          <li>💵 <strong>الدفع عند الاستلام</strong> (كاش للمندوب).</li>
+          <li>⚡ <strong>انستاباي</strong> (تحويل فوري).</li>
+          <li>📱 <strong>فودافون كاش</strong> (محفظة موبايل).</li>
+        </ul>
+        <p>ممكن نضيف طرق دفع تانية مستقبلًا.</p>
+
+        <h2>5. الشحن والتوصيل</h2>
+        <ul>
+          <li><strong>الشحن:</strong> 40 جنيه لكل المحافظات حاليًا.</li>
+          <li><strong>مدة التوصيل:</strong> من 2 لـ 5 أيام عمل حسب المحافظة.</li>
+          <li><strong>تأخير الشحن:</strong> ممكن يحصل تأخير بسبب ظروف خارجة عن إرادتنا، وهنبلغك لو حصل.</li>
+        </ul>
+
+        <h2>6. الإلغاء</h2>
+        <p>تقدر تلغي طلبك في أي وقت <strong>قبل ما يتشحن</strong>. بعد الشحن، لازم تتبع سياسة الاسترجاع.</p>
+
+        <h2>7. الملكية الفكرية</h2>
+        <p>كل حاجة في موقع FORSA — من تصميم، شعار، نصوص، صور — ملك حصري لـ FORSA. ممنوع استخدامها من غير إذن مكتوب.</p>
+
+        <h2>8. مسؤولية المستخدم</h2>
+        <p>لما تستخدم موقعنا، إنت بتوافق على:</p>
+        <ul>
+          <li>تدخل بيانات صحيحة عند الطلب.</li>
+          <li>متستخدمش الموقع لأي غرض غير قانوني.</li>
+          <li>متحاولش تخترق الموقع أو تسبب فيه أي ضرر.</li>
+          <li>تحترم باقي المستخدمين.</li>
+        </ul>
+
+        <h2>9. إخلاء المسؤولية</h2>
+        <p>FORSA مش مسؤولة عن:</p>
+        <ul>
+          <li>أي ضرر ناتج عن سوء استخدام المنتجات.</li>
+          <li>أي معلومات غير دقيقة قدمها المستخدم.</li>
+          <li>أي انقطاع في الخدمة بسبب ظروف خارجة عن إرادتنا.</li>
+        </ul>
+
+        <h2>10. تعديل الشروط</h2>
+        <p>ممكن نعدّل الشروط دي في أي وقت. التعديلات بتسري فورًا بعد نشرها على الموقع. استمرارك في استخدام الموقع معناه موافقتك على الشروط المحدثة.</p>
+
+        <h2>11. القانون المطبق</h2>
+        <p>الشروط دي بتخضع للقانون المصري. أي نزاع بيتحل وديًا الأول، ولو مش ممكن، فالمحاكم المصرية هي المختصة.</p>
+
+        <h2>12. تواصل معانا</h2>
+        <ul>
+          <li>📱 واتساب: <a href="https://wa.me/201556687455" target="_blank" style="color: var(--lime);">01556687455</a></li>
+          <li>📧 الإيميل: goharamr88@gmail.com</li>
+        </ul>
+
+        <div class="legal-updated">
+          آخر تحديث: أكتوبر 2026
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">
+        <img src="assets/logo.png" alt="FORSA" />
+        <span>FORSA</span>
+      </div>
+      <p class="footer-tag">Smart Deals. Better Choices.</p>
+      <p class="footer-line">لُقطة تستاهلها.</p>
+      <div class="footer-social">
+        <a href="https://wa.me/201556687455" target="_blank" title="واتساب">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        </a>
+        <a href="https://www.facebook.com/profile.php?id=61594967577422" target="_blank" title="فيسبوك">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+      </div>
+      <p class="footer-copy">© 2026 FORSA — جميع الحقوق محفوظة</p>
+      <div style="margin-top: 16px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; font-size: 13px;">
+        <a href="privacy.html" style="color: var(--gray); text-decoration: none;">سياسة الخصوصية</a>
+        <a href="terms.html" style="color: var(--lime); text-decoration: none;">الشروط والأحكام</a>
+        <a href="returns.html" style="color: var(--gray); text-decoration: none;">سياسة الاسترجاع</a>
+        <a href="faq.html" style="color: var(--gray); text-decoration: none;">الأسئلة الشائعة</a>
+        <a href="about.html" style="color: var(--gray); text-decoration: none;">من نحن</a>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/201556687455" target="_blank" class="whatsapp-float" title="تواصل واتساب">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+  </a>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase.js"></script>
+  <script src="animations.js"></script>
+</body>
+</html>
