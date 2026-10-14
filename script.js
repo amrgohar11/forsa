@@ -24,6 +24,20 @@ window.addEventListener("load", () => {
   }, 500);
 });
 
+// ========== OBSERVER FOR FADE-UP ==========
+function observeFadeUp() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add("visible");
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+  document.querySelectorAll(".fade-up:not(.visible)").forEach(el => observer.observe(el));
+}
+
 // ========== LOAD DATA ==========
 async function loadData() {
   if (typeof initFirebase === "function" && initFirebase()) {
@@ -49,6 +63,7 @@ async function loadData() {
 
         renderCategories();
         renderProducts();
+        observeFadeUp();
         return;
       }
     } catch (e) {
@@ -70,6 +85,7 @@ async function loadData() {
   }
   renderCategories();
   renderProducts();
+  observeFadeUp();
 }
 
 // ========== CATEGORIES ==========
@@ -139,6 +155,8 @@ function renderProducts(tab = currentTab) {
       </div>
     `;
   }).join("");
+
+  observeFadeUp();
 }
 
 function switchTab(tab) {
@@ -477,15 +495,6 @@ window.addEventListener("scroll", () => {
   if (window.scrollY > 20) header.classList.add("scrolled");
   else header.classList.remove("scrolled");
 });
-
-// ========== OBSERVER FOR FADE-UP ==========
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) e.target.classList.add("visible");
-  });
-}, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
-
-document.querySelectorAll(".fade-up").forEach(el => observer.observe(el));
 
 // ========== INIT ==========
 loadData();
