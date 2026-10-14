@@ -8,6 +8,10 @@ const firebaseConfig = {
   appId: "1:1092506195041:web:1f4f413c9db0e1a2454620"
 };
 
+// ========== ADMIN SETTINGS ==========
+const ADMIN_PHONE = "201556687455"; // رقم الواتساب بتاعك (بصيغة دولية بدون +)
+const ADMIN_API_KEY = "6976391"; // اللي جبته من CallMeBot
+
 // ========== INITIALIZE FIREBASE ==========
 let db = null;
 let storage = null;
@@ -163,7 +167,6 @@ async function fbGetOrders() {
 async function fbGetOrdersByPhone(phone) {
   if (!db) return null;
   try {
-    // نجيب كل الطلبات، ونفلتر في الكود (بدل query معقد)
     const snapshot = await db.collection("orders").get();
     const orders = [];
     snapshot.forEach(doc => {
@@ -172,7 +175,6 @@ async function fbGetOrdersByPhone(phone) {
         orders.push({ id: doc.id, ...data });
       }
     });
-    // رتّب في الكود بدل Firebase
     orders.sort((a, b) => {
       const dateA = a.createdAt?.toDate?.() || 0;
       const dateB = b.createdAt?.toDate?.() || 0;
@@ -209,5 +211,49 @@ async function fbDeleteOrder(id) {
   } catch (e) {
     console.error("Error deleting order:", e);
     return false;
+  }
+}
+
+// ========== SEND WHATSAPP NOTIFICATION TO ADMIN ==========
+async function sendAdminNotification(order) {
+  if (!ADMIN_API_KEY || ADMIN_API_KEY === "ضع_API_KEY_هنا") {
+    console.warn("⚠️ Admin API Key مش موجود - مش هيتم إرسال الإشعار");
+    return;
+  }
+
+  try {
+    // تجهيز المنتجات
+    const itemsText = (order.items || [])
+      .map(item => `• ${item.name} × ${item.qty} = ${item.price * item.qty} ج`)
+      .join("\n");
+
+    // الرسالة
+    const message =
+`🛒 *طلب جديد على FORSA*
+
+👤 *الاسم:* ${order.name}
+📞 *الموبايل:* ${order.phone}
+📍 *العنوان:* ${order.address} - ${order.city}
+💳 *الدفع:* ${order.paymentMethod}
+
+*المنتجات:*
+${itemsText}
+
+💰 *الإجمالي:* ${order.subtotal} ج
+🚚 *الشحن:* ${order.shipping} ج
+🧾 *الإجمالي النهائي:* ${order.total} ج
+${order.notes ? "\n📝 *ملاحظات:* " + order.notes : ""}
+
+🕐 ${new Date().toLocaleString("ar-EG")}`;
+
+    // إرسال الإشعار
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${ADMIN_PHONE}&text=${encodeURIComponent(message)}&apikey=${ADMIN_API_KEY}`;
+
+    // استخدام fetch
+    await fetch(url, { mode: "no-cors" });
+
+    console.log("✅ تم إرسال الإشعار على واتساب");
+  } catch (e) {
+    console.error("❌ فشل إرسال الإشعار:", e);
   }
 }

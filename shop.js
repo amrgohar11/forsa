@@ -353,6 +353,8 @@ async function saveOrderToFirebase(orderData) {
 
   if (orderId) {
     console.log("✅ تم حفظ الطلب في Firebase برقم:", orderId);
+    // ← السطر الجديد
+    sendAdminNotification(orderData);
   } else {
     console.warn("⚠️ فشل حفظ الطلب في Firebase");
   }
