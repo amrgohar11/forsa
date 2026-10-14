@@ -175,7 +175,6 @@ function updateProductSchema(p, url, image, desc) {
     }
   };
 
-  // أضف rating لو موجود
   if (p.rating) {
     schema.aggregateRating = {
       "@type": "AggregateRating",
@@ -328,6 +327,17 @@ function renderProduct() {
 
   document.getElementById("product-detail").innerHTML = html;
   observeFadeUp();
+
+  // ===== Meta Pixel: ViewContent =====
+  if (typeof fbq !== "undefined") {
+    fbq('track', 'ViewContent', {
+      content_name: p.name,
+      content_ids: [p.id],
+      content_type: 'product',
+      value: p.price,
+      currency: 'EGP'
+    });
+  }
 }
 
 // ========== GALLERY ==========
@@ -357,6 +367,17 @@ function addToCartDetail() {
   else cart.push({ ...currentProduct, qty: currentQty });
   updateCart();
   showToast(`✅ تم إضافة ${currentQty} × ${currentProduct.name} للسلة`);
+
+  // ===== Meta Pixel: AddToCart =====
+  if (typeof fbq !== "undefined") {
+    fbq('track', 'AddToCart', {
+      content_name: currentProduct.name,
+      content_ids: [currentProduct.id],
+      content_type: 'product',
+      value: currentProduct.price * currentQty,
+      currency: 'EGP'
+    });
+  }
 }
 
 function orderNowDetail() {
@@ -368,6 +389,17 @@ function orderNowDetail() {
   const cartEl = document.getElementById("cart");
   if (cartEl && !cartEl.classList.contains("open")) toggleCart();
   showToast(`⚡ ${currentProduct.name} جاهز للطلب`);
+
+  // ===== Meta Pixel: AddToCart =====
+  if (typeof fbq !== "undefined") {
+    fbq('track', 'AddToCart', {
+      content_name: currentProduct.name,
+      content_ids: [currentProduct.id],
+      content_type: 'product',
+      value: currentProduct.price * currentQty,
+      currency: 'EGP'
+    });
+  }
 }
 
 // ========== FAVORITES ==========
@@ -452,6 +484,17 @@ function openCheckout() {
   const modal = document.getElementById("modal-overlay");
   if (modal) modal.classList.add("active");
   document.body.style.overflow = "hidden";
+
+  // ===== Meta Pixel: InitiateCheckout =====
+  if (typeof fbq !== "undefined") {
+    const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    const numItems = cart.reduce((s, i) => s + i.qty, 0);
+    fbq('track', 'InitiateCheckout', {
+      value: subtotal,
+      currency: 'EGP',
+      num_items: numItems
+    });
+  }
 }
 
 function closeCheckout(e, force = false) {
@@ -540,6 +583,16 @@ function sendWhatsApp(e) {
     subtotal += item.price * item.qty;
   });
   const total = subtotal + SHIPPING;
+
+  // ===== Meta Pixel: Purchase =====
+  if (typeof fbq !== "undefined") {
+    const numItems = cart.reduce((s, i) => s + i.qty, 0);
+    fbq('track', 'Purchase', {
+      value: total,
+      currency: 'EGP',
+      num_items: numItems
+    });
+  }
 
   saveOrderToFirebase({
     name, phone, address, city, notes, payment,
@@ -782,6 +835,17 @@ function addToCartRelated(e, id) {
   else cart.push({ ...product, qty: 1 });
   updateCart();
   showToast(`✅ تم إضافة ${product.name} للسلة`);
+
+  // ===== Meta Pixel: AddToCart =====
+  if (typeof fbq !== "undefined") {
+    fbq('track', 'AddToCart', {
+      content_name: product.name,
+      content_ids: [product.id],
+      content_type: 'product',
+      value: product.price,
+      currency: 'EGP'
+    });
+  }
 }
 
 function orderNowRelated(e, id) {
@@ -795,6 +859,17 @@ function orderNowRelated(e, id) {
   const cartEl = document.getElementById("cart");
   if (cartEl && !cartEl.classList.contains("open")) toggleCart();
   showToast(`⚡ ${product.name} جاهز للطلب`);
+
+  // ===== Meta Pixel: AddToCart =====
+  if (typeof fbq !== "undefined") {
+    fbq('track', 'AddToCart', {
+      content_name: product.name,
+      content_ids: [product.id],
+      content_type: 'product',
+      value: product.price,
+      currency: 'EGP'
+    });
+  }
 }
 
 function toggleFavRelated(e, id) {
