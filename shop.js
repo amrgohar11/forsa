@@ -390,7 +390,7 @@ function updatePaymentInfo() {
 async function saveOrderToFirebase(orderData) {
   if (typeof initFirebase !== "function" || !initFirebase()) {
     console.warn("Firebase مش متاح، مش هنحفظ الطلب");
-    return;
+    return null;
   }
 
   const order = {
@@ -405,8 +405,10 @@ async function saveOrderToFirebase(orderData) {
   if (orderId) {
     console.log("✅ تم حفظ الطلب في Firebase برقم:", orderId);
     sendAdminNotification(orderData);
+    return orderId;
   } else {
     console.warn("⚠️ فشل حفظ الطلب في Firebase");
+    return null;
   }
 }
 
@@ -433,6 +435,16 @@ function sendWhatsApp(e) {
   });
   const total = subtotal + SHIPPING;
 
+  // ===== احفظ نسخة من المنتجات =====
+  const orderItems = cart.map(item => ({
+    id: item.id,
+    name: item.name,
+    price: item.price,
+    qty: item.qty,
+    image: item.image || "",
+    icon: item.icon || "📦"
+  }));
+
   // ===== Meta Pixel: Purchase =====
   if (typeof fbq !== "undefined") {
     const numItems = cart.reduce((s, i) => s + i.qty, 0);
@@ -445,14 +457,7 @@ function sendWhatsApp(e) {
 
   saveOrderToFirebase({
     name, phone, address, city, notes, payment,
-    items: cart.map(item => ({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      qty: item.qty,
-      image: item.image || "",
-      icon: item.icon || "📦"
-    })),
+    items: orderItems,
     subtotal,
     shipping: SHIPPING,
     total,
@@ -470,7 +475,25 @@ function sendWhatsApp(e) {
   localStorage.removeItem(CART_KEY);
   updateCart();
   toggleCart();
-  showToast("✅ تم تأكيد طلبك بنجاح");
+
+  // ===== حفظ بيانات الطلب للعرض في صفحة التأكيد =====
+  const orderNumber = Math.floor(100000 + Math.random() * 900000);
+  const orderForConfirmation = {
+    orderNumber: orderNumber,
+    createdAt: Date.now(),
+    items: orderItems,
+    shipping: SHIPPING,
+    name: name,
+    phone: phone,
+    address: address,
+    city: city
+  };
+
+  // حفظ في localStorage
+  localStorage.setItem('forsa_last_order', JSON.stringify(orderForConfirmation));
+
+  // تحويل على صفحة التأكيد
+  window.location.href = 'order-confirmation.html';
 }
 
 // ========== LIVE SEARCH ==========

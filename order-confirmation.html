@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0A0C10" />
+  <title>تم تأكيد طلبك | FORSA</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="assets/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R99WPGR7PE"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-R99WPGR7PE');
+  </script>
+
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '2255667811643260');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=2255667811643260&ev=PageView&noscript=1"
+  /></noscript>
+
+  <style>
+    .confirmation-page { padding: 60px 0 100px; min-height: 70vh; }
+    .confirmation-wrap { max-width: 700px; margin: 0 auto; }
+    
+    .confirmation-hero {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    
+    .success-icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 24px;
+      background: linear-gradient(135deg, var(--blue), var(--lime));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      color: var(--black);
+      animation: successPulse 2s ease infinite;
+      box-shadow: 0 0 60px rgba(184, 242, 58, 0.5);
+    }
+    
+    @keyframes successPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 60px rgba(184, 242, 58, 0.5); }
+      50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(184, 242, 58, 0.7); }
+    }
+    
+    .confirmation-hero h1 {
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 900;
+      margin-bottom: 12px;
+      color: var(--white);
+    }
+    
+    .confirmation-hero h1 span { color: var(--lime); }
+    
+    .confirmation-hero p {
+      color: var(--gray-light);
+      font-size: 17px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    .order-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    
+    .info-card {
+      background: var(--black-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      text-align: center;
+      transition: var(--transition);
+    }
+    
+    .info-card:hover {
+      border-color: var(--lime);
+      transform: translateY(-3px);
+    }
+    
+    .info-icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+      display: block;
+    }
+    
+    .info-label {
+      color: var(--gray);
+      font-size: 13px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    
+    .info-value {
+      color: var(--lime);
+      font-size: 18px;
+      font-weight: 900;
+      font-family: 'Montserrat', sans-serif;
+      word-break: break-word;
+    }
+    
+    .order-details-box {
+      background: var(--black-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      margin-bottom: 32px;
+    }
+    
+    .order-details-box h3 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: var(--lime);
+      font-weight: 800;
+    }
+    
+    .order-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .order-item-row:last-child { border-bottom: none; }
+    
+    .order-item-info h4 {
+      color: var(--white);
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+    
+    .order-item-info p {
+      color: var(--gray);
+      font-size: 13px;
+    }
+    
+    .order-item-price {
+      color: var(--lime);
+      font-weight: 800;
+      font-size: 15px;
+    }
+    
+    .order-total-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      color: var(--gray-light);
+      font-size: 15px;
+    }
+    
+    .order-total-row.final {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--lime);
+      border-top: 2px solid var(--border);
+      padding-top: 20px;
+      margin-top: 12px;
+    }
+    
+    .confirmation-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .confirmation-actions .btn-primary,
+    .confirmation-actions .btn-secondary {
+      flex: 1;
+      min-width: 200px;
+      justify-content: center;
+    }
+    
+    .next-steps {
+      background: linear-gradient(135deg, rgba(23, 105, 255, 0.08), rgba(184, 242, 58, 0.05));
+      border: 1px solid rgba(184, 242, 58, 0.2);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      margin-top: 32px;
+    }
+    
+    .next-steps h3 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: var(--white);
+      font-weight: 800;
+    }
+    
+    .next-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    
+    .next-step:last-child { margin-bottom: 0; }
+    
+    .step-num {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--blue), var(--lime));
+      color: var(--black);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 14px;
+    }
+    
+    .next-step-text {
+      flex: 1;
+      color: var(--gray-light);
+      font-size: 15px;
+      line-height: 1.7;
+      padding-top: 4px;
+    }
+    
+    .next-step-text strong { color: var(--lime); }
+    
+    .empty-order {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray);
+    }
+    
+    @media (max-width: 768px) {
+      .order-details-box { padding: 24px 20px; }
+      .confirmation-actions { flex-direction: column; }
+      .confirmation-actions .btn-primary,
+      .confirmation-actions .btn-secondary { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scroll-progress" id="scroll-progress"></div>
+  <div class="custom-cursor" id="custom-cursor"></div>
+  <div class="custom-cursor-outline" id="custom-cursor-outline"></div>
+
+  <div class="luxury-loader" id="luxury-loader">
+    <img src="assets/logo.png" alt="FORSA" class="luxury-loader-logo" />
+    <div class="luxury-loader-text">FORSA</div>
+    <div class="luxury-loader-bar"></div>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="topbar-marquee">
+      <div class="topbar-track">
+        <span>🚚 شحن 40 جنيه لكل المحافظات</span>
+        <span class="sep">•</span>
+        <span>⚡ عروض حصرية كل أسبوع</span>
+        <span class="sep">•</span>
+        <span>🎁 خصم 10% على أول طلب</span>
+        <span class="sep">•</span>
+        <span>📞 اتصل بينا: 01556687455</span>
+        <span class="sep">•</span>
+        <span>💎 منتجات أصلية 100%</span>
+        <span class="sep">•</span>
+        <span>🛡️ ضمان استبدال 14 يوم</span>
+        <span class="sep">•</span>
+        <span>⚡ توصيل سريع خلال 48 ساعة</span>
+        <span class="sep">•</span>
+        <span>🚚 شحن 40 جنيه لكل المحافظات</span>
+        <span class="sep">•</span>
+        <span>⚡ عروض حصرية كل أسبوع</span>
+        <span class="sep">•</span>
+        <span>🎁 خصم 10% على أول طلب</span>
+        <span class="sep">•</span>
+        <span>📞 اتصل بينا: 01556687455</span>
+        <span class="sep">•</span>
+        <span>💎 منتجات أصلية 100%</span>
+        <span class="sep">•</span>
+        <span>🛡️ ضمان استبدال 14 يوم</span>
+        <span class="sep">•</span>
+        <span>⚡ توصيل سريع خلال 48 ساعة</span>
+        <span class="sep">•</span>
+      </div>
+    </div>
+  </div>
+
+  <header class="header" id="header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <img src="assets/logo.png" alt="FORSA" class="logo-img" />
+        <span class="logo-text">FORSA</span>
+      </a>
+      <nav class="nav">
+        <a href="index.html">الرئيسية</a>
+        <a href="shop.html">كل المنتجات</a>
+        <a href="orders.html">طلباتي</a>
+        <a href="about.html">عن FORSA</a>
+        <a href="faq.html">الأسئلة الشائعة</a>
+      </nav>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="openSearchModal()" title="بحث">🔍</button>
+        <button class="cart-btn" onclick="toggleCart()">
+          🛒 <span class="cart-text">السلة</span> <span class="cart-count" id="cart-count">0</span>
+        </button>
+        <button class="icon-btn menu-btn" onclick="toggleMenu()">☰</button>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav">
+      <a href="index.html">الرئيسية</a>
+      <a href="shop.html">كل المنتجات</a>
+      <a href="orders.html">طلباتي</a>
+      <a href="about.html">عن FORSA</a>
+      <a href="faq.html">الأسئلة الشائعة</a>
+    </nav>
+  </header>
+
+  <section class="confirmation-page">
+    <div class="container">
+      <div class="confirmation-wrap">
+
+        <div class="confirmation-hero">
+          <div class="success-icon">✓</div>
+          <h1>تم تأكيد <span>طلبك!</span></h1>
+          <p>شكرًا لثقتك في FORSA. هنبدأ نجهز طلبك على طول 💚</p>
+        </div>
+
+        <div class="order-info-grid">
+          <div class="info-card">
+            <span class="info-icon">📦</span>
+            <div class="info-label">رقم الطلب</div>
+            <div class="info-value" id="order-id">-</div>
+          </div>
+          <div class="info-card">
+            <span class="info-icon">📅</span>
+            <div class="info-label">تاريخ الطلب</div>
+            <div class="info-value" id="order-date">-</div>
+          </div>
+          <div class="info-card">
+            <span class="info-icon">🚚</span>
+            <div class="info-label">التسليم المتوقع</div>
+            <div class="info-value" id="delivery-date">-</div>
+          </div>
+        </div>
+
+        <div class="order-details-box">
+          <h3>🛒 تفاصيل الطلب</h3>
+          <div id="order-items-list"></div>
+          <div class="order-total-row">
+            <span>الإجمالي:</span>
+            <span id="order-subtotal">0 جنيه</span>
+          </div>
+          <div class="order-total-row">
+            <span>الشحن:</span>
+            <span id="order-shipping">40 جنيه</span>
+          </div>
+          <div class="order-total-row final">
+            <span>الإجمالي النهائي:</span>
+            <span id="order-total">0 جنيه</span>
+          </div>
+        </div>
+
+        <div class="next-steps">
+          <h3>🎯 الخطوات الجاية</h3>
+          <div class="next-step">
+            <span class="step-num">1</span>
+            <div class="next-step-text">
+              <strong>تأكيد على واتساب:</strong> هنتواصل معاك لتأكيد العنوان والدفع
+            </div>
+          </div>
+          <div class="next-step">
+            <span class="step-num">2</span>
+            <div class="next-step-text">
+              <strong>تجهيز الطلب:</strong> هنحضر منتجاتك ونجهزها للشحن
+            </div>
+          </div>
+          <div class="next-step">
+            <span class="step-num">3</span>
+            <div class="next-step-text">
+              <strong>الشحن:</strong> هيتم التوصيل خلال 2-5 أيام عمل حسب محافظتك
+            </div>
+          </div>
+          <div class="next-step">
+            <span class="step-num">4</span>
+            <div class="next-step-text">
+              <strong>الاستلام:</strong> هتستلم طلبك وتدفع للمندوب (لو دفع عند الاستلام)
+            </div>
+          </div>
+        </div>
+
+        <div class="confirmation-actions" style="margin-top: 32px;">
+          <a href="orders.html" class="btn-primary">📦 تتبع طلبي</a>
+          <a href="https://wa.me/201556687455" target="_blank" class="btn-secondary">💬 تواصل واتساب</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-logo">
+        <img src="assets/logo.png" alt="FORSA" />
+        <span>FORSA</span>
+      </div>
+      <p class="footer-tag">Smart Deals. Better Choices.</p>
+      <p class="footer-line">لُقطة تستاهلها.</p>
+      <div class="footer-social">
+        <a href="https://wa.me/201556687455" target="_blank" title="واتساب">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        </a>
+        <a href="https://www.facebook.com/profile.php?id=61594967577422" target="_blank" title="فيسبوك">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+      </div>
+      <p class="footer-copy">© 2026 FORSA — جميع الحقوق محفوظة</p>
+      <div style="margin-top: 16px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; font-size: 13px;">
+        <a href="privacy.html" style="color: var(--gray); text-decoration: none;">سياسة الخصوصية</a>
+        <a href="terms.html" style="color: var(--gray); text-decoration: none;">الشروط والأحكام</a>
+        <a href="returns.html" style="color: var(--gray); text-decoration: none;">سياسة الاسترجاع</a>
+        <a href="faq.html" style="color: var(--gray); text-decoration: none;">الأسئلة الشائعة</a>
+        <a href="about.html" style="color: var(--gray); text-decoration: none;">من نحن</a>
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/201556687455" target="_blank" class="whatsapp-float" title="تواصل واتساب">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+  </a>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase.js"></script>
+
+  <script>
+    // ========== LOAD ORDER DATA FROM LOCALSTORAGE ==========
+    document.addEventListener('DOMContentLoaded', function() {
+      const orderData = JSON.parse(localStorage.getItem('forsa_last_order') || 'null');
+
+      if (!orderData) {
+        // لو مفيش بيانات، نرجع للصفحة الرئيسية
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // ===== Order ID =====
+      document.getElementById('order-id').textContent = '#' + orderData.orderNumber;
+
+      // ===== Order Date =====
+      const orderDate = new Date(orderData.createdAt);
+      document.getElementById('order-date').textContent = orderDate.toLocaleDateString('ar-EG', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+
+      // ===== Delivery Date (التسليم المتوقع) =====
+      const deliveryDate = new Date(orderDate);
+      deliveryDate.setDate(deliveryDate.getDate() + 3);
+      document.getElementById('delivery-date').textContent = deliveryDate.toLocaleDateString('ar-EG', {
+        day: 'numeric',
+        month: 'short'
+      });
+
+      // ===== Order Items =====
+      const itemsList = document.getElementById('order-items-list');
+      let subtotal = 0;
+
+      orderData.items.forEach(item => {
+        const itemTotal = item.price * item.qty;
+        subtotal += itemTotal;
+
+        const itemEl = document.createElement('div');
+        itemEl.className = 'order-item-row';
+        itemEl.innerHTML = `
+          <div class="order-item-info">
+            <h4>${item.name} × ${item.qty}</h4>
+            <p>${item.price} جنيه للوحدة</p>
+          </div>
+          <div class="order-item-price">${itemTotal} جنيه</div>
+        `;
+        itemsList.appendChild(itemEl);
+      });
+
+      // ===== Totals =====
+      document.getElementById('order-subtotal').textContent = subtotal + ' جنيه';
+      document.getElementById('order-shipping').textContent = (orderData.shipping || 40) + ' جنيه';
+      document.getElementById('order-total').textContent = (subtotal + (orderData.shipping || 40)) + ' جنيه';
+
+      // ===== Clear order data (بعد ما نعرضها مرة واحدة) =====
+      setTimeout(() => {
+        localStorage.removeItem('forsa_last_order');
+      }, 5000);
+    });
+  </script>
+
+  <script src="animations.js"></script>
+</body>
+</html>
