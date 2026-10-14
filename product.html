@@ -155,7 +155,7 @@
     <div class="modal" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeCheckout(event, true)">✕</button>
       <h3>تأكيد الطلب</h3>
-      <p class="modal-sub">هيتم تحويلك على واتساب لتأكيد الطلب</p>
+      <p class="modal-sub">املأ البيانات وهيتم تأكيد طلبك مباشرة</p>
       <form id="checkout-form" onsubmit="sendWhatsApp(event)">
         <input type="text" id="name" placeholder="الاسم بالكامل" required />
         <input type="tel" id="phone" placeholder="رقم الموبايل" required />
@@ -211,7 +211,7 @@
         </div>
 
         <textarea id="notes" placeholder="ملاحظات (اختياري)"></textarea>
-        <button type="submit" class="btn-primary full">✅ تأكيد الطلب على واتساب</button>
+        <button type="submit" class="btn-primary full">✅ تأكيد الطلب</button>
       </form>
     </div>
   </div>
