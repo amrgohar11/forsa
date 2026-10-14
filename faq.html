@@ -64,6 +64,9 @@
       .faq-question { padding: 16px; font-size: 14px; }
       .faq-answer-inner { padding: 0 16px 20px; font-size: 14px; }
     }
+
+    /* Fix fade-up على صفحات المحتوى */
+    .fade-up { opacity: 1 !important; transform: none !important; }
   </style>
 </head>
 <body>
@@ -96,7 +99,7 @@
         <a href="index.html">الرئيسية</a>
         <a href="shop.html">كل المنتجات</a>
         <a href="orders.html">طلباتي</a>
-        <a href="index.html#about">عن FORSA</a>
+        <a href="about.html">عن FORSA</a>
         <a href="index.html#contact">تواصل</a>
       </nav>
       <div class="header-actions">
@@ -111,19 +114,20 @@
       <a href="index.html">الرئيسية</a>
       <a href="shop.html">كل المنتجات</a>
       <a href="orders.html">طلباتي</a>
+      <a href="about.html">عن FORSA</a>
       <a href="index.html#contact">تواصل</a>
     </nav>
   </header>
 
   <section class="faq-page">
     <div class="container">
-      <div class="faq-hero fade-up">
+      <div class="faq-hero">
         <span class="section-tag">❓ مساعدة</span>
         <h1>الأسئلة الشائعة</h1>
         <p>كل اللي محتاج تعرفه عن FORSA في مكان واحد.</p>
       </div>
 
-      <div class="faq-list fade-up">
+      <div class="faq-list">
 
         <div class="faq-item">
           <div class="faq-question" onclick="toggleFaq(this)">
@@ -262,7 +266,7 @@
 
       </div>
 
-      <div class="faq-cta fade-up">
+      <div class="faq-cta">
         <h3>لسه عندك سؤال؟</h3>
         <p>كلمنا على واتساب، وهنساعدك فورًا.</p>
         <a href="https://wa.me/201556687455" target="_blank" class="btn-primary">💬 تواصل معانا</a>

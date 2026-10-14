@@ -56,6 +56,9 @@
     .step-card h4 { color: var(--white); font-size: 15px; margin-bottom: 6px; }
     .step-card p { color: var(--gray); font-size: 13px; margin: 0; }
     @media (max-width: 768px) { .legal-content { padding: 24px; } .legal-content h2 { font-size: 18px; } }
+
+    /* Fix fade-up على صفحات المحتوى */
+    .fade-up { opacity: 1 !important; transform: none !important; }
   </style>
 </head>
 <body>
@@ -88,7 +91,7 @@
         <a href="index.html">الرئيسية</a>
         <a href="shop.html">كل المنتجات</a>
         <a href="orders.html">طلباتي</a>
-        <a href="index.html#about">عن FORSA</a>
+        <a href="about.html">عن FORSA</a>
         <a href="index.html#contact">تواصل</a>
       </nav>
       <div class="header-actions">
@@ -103,19 +106,20 @@
       <a href="index.html">الرئيسية</a>
       <a href="shop.html">كل المنتجات</a>
       <a href="orders.html">طلباتي</a>
+      <a href="about.html">عن FORSA</a>
       <a href="index.html#contact">تواصل</a>
     </nav>
   </header>
 
   <section class="legal-page">
     <div class="container">
-      <div class="legal-hero fade-up">
+      <div class="legal-hero">
         <span class="section-tag">🔄 سياسة</span>
         <h1>سياسة الاسترجاع والاستبدال</h1>
         <p>راحتك أولويتنا. اقرأ السياسة دي عشان تعرف حقوقك.</p>
       </div>
 
-      <div class="legal-content fade-up">
+      <div class="legal-content">
         <h2>1. مدة الاسترجاع</h2>
         <p>عندك حق ترجّع أو تستبدل المنتج خلال <strong>14 يوم</strong> من تاريخ الاستلام، بشرط إن المنتج بحالته الأصلية.</p>
 
