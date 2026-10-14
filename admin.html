@@ -120,6 +120,48 @@
       transform: translateY(-2px);
     }
     .topbar-actions { display: flex; gap: 12px; align-items: center; }
+
+    /* ===== Admin Top Bar ===== */
+    .topbar-admin {
+      height: auto;
+      padding: 10px 0;
+    }
+    .topbar-admin-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 0 20px;
+    }
+    .topbar-admin-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .topbar-back {
+      color: var(--black);
+      font-weight: 800;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      transition: var(--transition);
+    }
+    .topbar-back:hover { background: rgba(0, 0, 0, 0.1); }
+    @media (max-width: 768px) {
+      .topbar-admin-inner {
+        justify-content: center;
+        text-align: center;
+      }
+      .topbar-admin-title { width: 100%; justify-content: center; }
+      .topbar-actions { width: 100%; justify-content: center; }
+      .admin-stats { grid-template-columns: 1fr; }
+      .admin-tabs { width: 100%; overflow-x: auto; }
+      .admin-tab-btn { white-space: nowrap; }
+    }
   </style>
 </head>
 <body>
@@ -131,29 +173,15 @@
   <div class="custom-cursor" id="custom-cursor"></div>
   <div class="custom-cursor-outline" id="custom-cursor-outline"></div>
 
-  <!-- Top Bar -->
-  <div class="topbar">
-    <div class="topbar-marquee">
-      <div class="topbar-track">
-      <span>🚚 شحن 40 جنيه لكل المحافظات</span>
-      <span class="sep">•</span>
-      <span>⚡ عروض حصرية كل أسبوع</span>
-      <span class="sep">•</span>
-      <span>🎁 خصم 10% على أول طلب</span>
-      <span class="sep">•</span>
-      <span>📞 اتصل بينا: 01556687455</span>
-      <span class="sep">•</span>
-      <span>💎 منتجات أصلية 100%</span>
-      <span class="sep">•</span>
-      <span>🛡️ ضمان استبدال 14 يوم</span>
-      <span class="sep">•</span>
-      <span>⚡ توصيل سريع خلال 48 ساعة</span>
-      <span class="sep">•</span>
-    <div class="container topbar-inner">
-      <span>🔐 لوحة تحكم FORSA</span>
+  <!-- Top Bar - Admin -->
+  <div class="topbar topbar-admin">
+    <div class="container topbar-admin-inner">
+      <div class="topbar-admin-title">
+        <span>🔐 لوحة تحكم FORSA</span>
+      </div>
       <div class="topbar-actions">
         <button class="logout-btn" onclick="logoutAdmin()">🚪 تسجيل الخروج</button>
-        <a href="index.html" style="color: var(--black); font-weight: 800; text-decoration: none;">← رجوع للموقع</a>
+        <a href="index.html" class="topbar-back">← رجوع للموقع</a>
       </div>
     </div>
   </div>
