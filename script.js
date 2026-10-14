@@ -401,7 +401,7 @@ async function saveOrderToFirebase(orderData) {
 }
 
 // ========== SEND ORDER ==========
-function sendWhatsApp(e) {
+async function sendWhatsApp(e) {
   e.preventDefault();
   const name = document.getElementById("name").value;
   const phone = document.getElementById("phone").value;
@@ -443,7 +443,7 @@ function sendWhatsApp(e) {
     });
   }
 
-  saveOrderToFirebase({
+  await saveOrderToFirebase({
     name, phone, address, city, notes, payment,
     items: orderItems,
     subtotal,
