@@ -108,7 +108,6 @@ function updateMetaTags() {
     productImage = img.startsWith("http") ? img : `${baseUrl}/${img}`;
   }
 
-  // Title
   document.title = productTitle;
   const metaTitle = document.getElementById("meta-title");
   if (metaTitle) metaTitle.setAttribute("content", productTitle);
@@ -117,7 +116,6 @@ function updateMetaTags() {
   const twTitle = document.getElementById("twitter-title");
   if (twTitle) twTitle.setAttribute("content", productTitle);
 
-  // Description
   const metaDesc = document.getElementById("meta-description");
   if (metaDesc) metaDesc.setAttribute("content", productDesc);
   const ogDesc = document.getElementById("og-description");
@@ -125,7 +123,6 @@ function updateMetaTags() {
   const twDesc = document.getElementById("twitter-description");
   if (twDesc) twDesc.setAttribute("content", productDesc);
 
-  // URL
   const canonical = document.getElementById("canonical-link");
   if (canonical) canonical.setAttribute("href", productUrl);
   const ogUrl = document.getElementById("og-url");
@@ -133,13 +130,11 @@ function updateMetaTags() {
   const twUrl = document.getElementById("twitter-url");
   if (twUrl) twUrl.setAttribute("content", productUrl);
 
-  // Image
   const ogImg = document.getElementById("og-image");
   if (ogImg) ogImg.setAttribute("content", productImage);
   const twImg = document.getElementById("twitter-image");
   if (twImg) twImg.setAttribute("content", productImage);
 
-  // Product Structured Data (Schema.org)
   updateProductSchema(p, productUrl, productImage, productDesc);
 }
 
@@ -156,10 +151,7 @@ function updateProductSchema(p, url, image, desc) {
     "image": image,
     "url": url,
     "sku": p.sku || p.id,
-    "brand": {
-      "@type": "Brand",
-      "name": "FORSA"
-    },
+    "brand": { "@type": "Brand", "name": "FORSA" },
     "offers": {
       "@type": "Offer",
       "url": url,
@@ -168,10 +160,7 @@ function updateProductSchema(p, url, image, desc) {
       "availability": p.inStock !== false
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
-      "seller": {
-        "@type": "Organization",
-        "name": "FORSA"
-      }
+      "seller": { "@type": "Organization", "name": "FORSA" }
     }
   };
 
@@ -231,7 +220,7 @@ function renderProduct() {
           ? `<img src="${mainImage}" alt="${p.name}" id="main-image" />`
           : `<div class="gallery-placeholder">${p.icon || "📦"}</div>`}
         ${p.badge ? `<span class="gallery-badge">${p.badge}</span>` : ""}
-        <button class="gallery-fav ${isFav ? "active" : ""}" onclick="toggleFav(${p.id})" title="مفضلة">
+        <button class="gallery-fav ${isFav ? "active" : ""}" onclick="toggleFav(${p.id}, event)" title="مفضلة">
           ${isFav ? "❤️" : "🤍"}
         </button>
       </div>
@@ -291,10 +280,10 @@ function renderProduct() {
       </div>
 
       <div class="product-actions-detail">
-        <button class="add-btn" onclick="addToCartDetail()" ${!inStock ? "disabled" : ""}>
+        <button class="add-btn" onclick="addToCartDetail(event)" ${!inStock ? "disabled" : ""}>
           🛒 أضف للسلة
         </button>
-        <button class="order-now-btn" onclick="orderNowDetail()" ${!inStock ? "disabled" : ""}>
+        <button class="order-now-btn" onclick="orderNowDetail(event)" ${!inStock ? "disabled" : ""}>
           ⚡ اطلب الآن
         </button>
       </div>
@@ -360,13 +349,20 @@ function updateQty(val) {
 }
 
 // ========== ADD TO CART ==========
-function addToCartDetail() {
+function addToCartDetail(event) {
   if (!currentProduct) return;
   const existing = cart.find(item => item.id === currentProduct.id);
   if (existing) existing.qty += currentQty;
   else cart.push({ ...currentProduct, qty: currentQty });
   updateCart();
   showToast(`✅ تم إضافة ${currentQty} × ${currentProduct.name} للسلة`);
+
+  // ===== Fly to Cart Animation =====
+  if (typeof flyToCart === "function" && event && event.target) {
+    const img = document.getElementById("main-image") || 
+                document.querySelector(".gallery-placeholder");
+    if (img) flyToCart(img);
+  }
 
   // ===== Meta Pixel: AddToCart =====
   if (typeof fbq !== "undefined") {
@@ -380,7 +376,7 @@ function addToCartDetail() {
   }
 }
 
-function orderNowDetail() {
+function orderNowDetail(event) {
   if (!currentProduct) return;
   const existing = cart.find(item => item.id === currentProduct.id);
   if (existing) existing.qty += currentQty;
@@ -389,6 +385,13 @@ function orderNowDetail() {
   const cartEl = document.getElementById("cart");
   if (cartEl && !cartEl.classList.contains("open")) toggleCart();
   showToast(`⚡ ${currentProduct.name} جاهز للطلب`);
+
+  // ===== Fly to Cart Animation =====
+  if (typeof flyToCart === "function" && event && event.target) {
+    const img = document.getElementById("main-image") || 
+                document.querySelector(".gallery-placeholder");
+    if (img) flyToCart(img);
+  }
 
   // ===== Meta Pixel: AddToCart =====
   if (typeof fbq !== "undefined") {
@@ -403,7 +406,12 @@ function orderNowDetail() {
 }
 
 // ========== FAVORITES ==========
-function toggleFav(id) {
+function toggleFav(id, event) {
+  // ===== Heart Burst Animation =====
+  if (typeof heartBurst === "function" && event && event.target) {
+    heartBurst(event.target);
+  }
+
   const idx = favorites.indexOf(id);
   if (idx > -1) {
     favorites.splice(idx, 1);
@@ -836,6 +844,13 @@ function addToCartRelated(e, id) {
   updateCart();
   showToast(`✅ تم إضافة ${product.name} للسلة`);
 
+  // ===== Fly to Cart Animation =====
+  if (typeof flyToCart === "function" && e.target) {
+    const card = e.target.closest(".product-card");
+    const img = card ? card.querySelector(".product-img img") || card.querySelector(".product-img") : null;
+    if (img) flyToCart(img);
+  }
+
   // ===== Meta Pixel: AddToCart =====
   if (typeof fbq !== "undefined") {
     fbq('track', 'AddToCart', {
@@ -860,6 +875,13 @@ function orderNowRelated(e, id) {
   if (cartEl && !cartEl.classList.contains("open")) toggleCart();
   showToast(`⚡ ${product.name} جاهز للطلب`);
 
+  // ===== Fly to Cart Animation =====
+  if (typeof flyToCart === "function" && e.target) {
+    const card = e.target.closest(".product-card");
+    const img = card ? card.querySelector(".product-img img") || card.querySelector(".product-img") : null;
+    if (img) flyToCart(img);
+  }
+
   // ===== Meta Pixel: AddToCart =====
   if (typeof fbq !== "undefined") {
     fbq('track', 'AddToCart', {
@@ -875,6 +897,12 @@ function orderNowRelated(e, id) {
 function toggleFavRelated(e, id) {
   e.preventDefault();
   e.stopPropagation();
+
+  // ===== Heart Burst Animation =====
+  if (typeof heartBurst === "function" && e.target) {
+    heartBurst(e.target);
+  }
+
   const idx = favorites.indexOf(id);
   if (idx > -1) {
     favorites.splice(idx, 1);

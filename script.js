@@ -147,8 +147,8 @@ function renderProducts(tab = currentTab) {
               ${p.oldPrice && p.oldPrice > p.price ? `<span class="price-old">${p.oldPrice} جنيه</span>` : ""}
             </div>
             <div class="product-actions">
-              <button class="add-btn" onclick="addToCart(${p.id})">🛒 أضف للسلة</button>
-              <button class="order-now-btn" onclick="orderNow(${p.id})">⚡ اطلب الآن</button>
+              <button class="add-btn" onclick="addToCart(${p.id}, event)">🛒 أضف للسلة</button>
+              <button class="order-now-btn" onclick="orderNow(${p.id}, event)">⚡ اطلب الآن</button>
             </div>
           </div>
         </div>
@@ -178,6 +178,12 @@ function scrollCarousel(dir) {
 // ========== FAVORITES ==========
 function toggleFav(e, id) {
   e.stopPropagation();
+  
+  // ===== Heart Burst Animation =====
+  if (typeof heartBurst === "function" && e.target) {
+    heartBurst(e.target);
+  }
+  
   const idx = favorites.indexOf(id);
   if (idx > -1) {
     favorites.splice(idx, 1);
@@ -199,7 +205,7 @@ function showFavorites() {
 }
 
 // ========== CART ==========
-function addToCart(id) {
+function addToCart(id, event) {
   const product = allData.products.find(p => p.id === id);
   if (!product) return;
   const existing = cart.find(item => item.id === id);
@@ -207,6 +213,13 @@ function addToCart(id) {
   else cart.push({ ...product, qty: 1 });
   updateCart();
   showToast(`✅ تم إضافة ${product.name} للسلة`);
+
+  // ===== Fly to Cart Animation =====
+  if (typeof flyToCart === "function" && event && event.target) {
+    const card = event.target.closest(".product-card");
+    const img = card ? card.querySelector(".product-img img") || card.querySelector(".product-img") : null;
+    if (img) flyToCart(img);
+  }
 
   // ===== Meta Pixel: AddToCart =====
   if (typeof fbq !== "undefined") {
@@ -220,7 +233,7 @@ function addToCart(id) {
   }
 }
 
-function orderNow(id) {
+function orderNow(id, event) {
   const product = allData.products.find(p => p.id === id);
   if (!product) return;
   const existing = cart.find(item => item.id === id);
@@ -232,6 +245,13 @@ function orderNow(id) {
     toggleCart();
   }
   showToast(`⚡ ${product.name} جاهز للطلب`);
+
+  // ===== Fly to Cart Animation =====
+  if (typeof flyToCart === "function" && event && event.target) {
+    const card = event.target.closest(".product-card");
+    const img = card ? card.querySelector(".product-img img") || card.querySelector(".product-img") : null;
+    if (img) flyToCart(img);
+  }
 
   // ===== Meta Pixel: AddToCart =====
   if (typeof fbq !== "undefined") {
@@ -378,7 +398,7 @@ async function saveOrderToFirebase(orderData) {
   }
 }
 
-// ========== SEND ORDER (بدون واتساب للعميل) ==========
+// ========== SEND ORDER ==========
 function sendWhatsApp(e) {
   e.preventDefault();
   const name = document.getElementById("name").value;
@@ -411,7 +431,6 @@ function sendWhatsApp(e) {
     });
   }
 
-  // حفظ الطلب في Firebase
   saveOrderToFirebase({
     name, phone, address, city, notes, payment,
     items: cart.map(item => ({
