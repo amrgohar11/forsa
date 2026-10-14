@@ -20,7 +20,6 @@ let productId = urlParams.get("id");
 
 // ========== LOAD DATA ==========
 async function loadData() {
-  // 1) حاول تجيب من Firebase الأول
   if (typeof initFirebase === "function" && initFirebase()) {
     try {
       const [fbProducts, fbCategories] = await Promise.all([
@@ -40,7 +39,6 @@ async function loadData() {
     }
   }
 
-  // 2) لو Firebase مش متاح، استخدم localStorage
   if (!allData.products || allData.products.length === 0) {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
@@ -56,7 +54,6 @@ async function loadData() {
     }
   }
 
-  // 3) ابحث عن المنتج
   currentProduct = allData.products.find(p => String(p.id) === String(productId));
 
   if (!currentProduct) {
@@ -398,14 +395,13 @@ async function saveOrderToFirebase(orderData) {
 
   if (orderId) {
     console.log("✅ تم حفظ الطلب في Firebase برقم:", orderId);
-    // ← السطر الجديد
     sendAdminNotification(orderData);
   } else {
     console.warn("⚠️ فشل حفظ الطلب في Firebase");
   }
 }
 
-// ========== SEND WHATSAPP ==========
+// ========== SEND ORDER (بدون واتساب للعميل) ==========
 function sendWhatsApp(e) {
   e.preventDefault();
   const name = document.getElementById("name").value;
@@ -422,31 +418,11 @@ function sendWhatsApp(e) {
     vodafone: "فودافون كاش"
   };
 
-  let itemsText = "";
   let subtotal = 0;
-  cart.forEach((item, i) => {
-    itemsText += `${i + 1}. ${item.name} × ${item.qty} = ${item.price * item.qty} جنيه\n`;
+  cart.forEach(item => {
     subtotal += item.price * item.qty;
   });
   const total = subtotal + SHIPPING;
-
-  const message =
-`*مرحبًا FORSA*
-عايز أأكد طلبي:
-
-*الاسم:* ${name}
-*الموبايل:* ${phone}
-*العنوان:* ${address} - ${city}
-${notes ? "*ملاحظات:* " + notes + "\n" : ""}
-*الطلب:*
-${itemsText}
-*الإجمالي:* ${subtotal} جنيه
-*الشحن:* ${SHIPPING} جنيه
-*الإجمالي النهائي:* ${total} جنيه
-
-*طريقة الدفع:* ${paymentNames[payment]}
-
-من فضلك أكد الطلب 🙏`;
 
   saveOrderToFirebase({
     name, phone, address, city, notes, payment,
@@ -464,7 +440,6 @@ ${itemsText}
     paymentMethod: paymentNames[payment]
   });
 
-  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
   document.getElementById("checkout-form").reset();
 
   const codInput = document.querySelector('input[name="payment"][value="cod"]');
@@ -476,7 +451,7 @@ ${itemsText}
   localStorage.removeItem(CART_KEY);
   updateCart();
   toggleCart();
-  showToast("✅ تم إرسال طلبك على واتساب");
+  showToast("✅ تم تأكيد طلبك بنجاح");
 }
 
 // ========== RELATED ==========

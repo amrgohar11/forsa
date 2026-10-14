@@ -18,7 +18,6 @@ let urlParams = new URLSearchParams(window.location.search);
 
 // ========== LOAD DATA ==========
 async function loadData() {
-  // 1) حاول تجيب من Firebase الأول
   if (typeof initFirebase === "function" && initFirebase()) {
     try {
       const [fbProducts, fbCategories] = await Promise.all([
@@ -47,7 +46,6 @@ async function loadData() {
     }
   }
 
-  // 2) لو Firebase مش متاح، استخدم localStorage
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     allData = JSON.parse(saved);
@@ -353,14 +351,13 @@ async function saveOrderToFirebase(orderData) {
 
   if (orderId) {
     console.log("✅ تم حفظ الطلب في Firebase برقم:", orderId);
-    // ← السطر الجديد
     sendAdminNotification(orderData);
   } else {
     console.warn("⚠️ فشل حفظ الطلب في Firebase");
   }
 }
 
-// ========== SEND WHATSAPP ==========
+// ========== SEND ORDER (بدون واتساب للعميل) ==========
 function sendWhatsApp(e) {
   e.preventDefault();
   const name = document.getElementById("name").value;
@@ -372,36 +369,16 @@ function sendWhatsApp(e) {
   const payment = paymentInput ? paymentInput.value : "cod";
 
   const paymentNames = {
-    cod: "💵 الدفع عند الاستلام",
-    instapay: "⚡ انستاباي",
-    vodafone: "📱 فودافون كاش"
+    cod: "الدفع عند الاستلام",
+    instapay: "انستاباي",
+    vodafone: "فودافون كاش"
   };
 
-  let itemsText = "";
   let subtotal = 0;
-  cart.forEach((item, i) => {
-    itemsText += `${i + 1}. ${item.name} × ${item.qty} = ${item.price * item.qty} جنيه\n`;
+  cart.forEach(item => {
     subtotal += item.price * item.qty;
   });
   const total = subtotal + SHIPPING;
-
-  const message =
-`مرحبًا FORSA 👋
-عايز أأكد طلبي:
-
-👤 الاسم: ${name}
-📞 الموبايل: ${phone}
-📍 العنوان: ${address} - ${city}
-${notes ? "📝 ملاحظات: " + notes + "\n" : ""}
-🛒 الطلب:
-${itemsText}
-💰 الإجمالي: ${subtotal} جنيه
-🚚 الشحن: ${SHIPPING} جنيه
-🧾 الإجمالي النهائي: ${total} جنيه
-
-💳 طريقة الدفع: ${paymentNames[payment]}
-
-من فضلك أكد الطلب 🙏`;
 
   saveOrderToFirebase({
     name, phone, address, city, notes, payment,
@@ -419,7 +396,6 @@ ${itemsText}
     paymentMethod: paymentNames[payment]
   });
 
-  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
   document.getElementById("checkout-form").reset();
 
   const codInput = document.querySelector('input[name="payment"][value="cod"]');
@@ -431,7 +407,7 @@ ${itemsText}
   localStorage.removeItem(CART_KEY);
   updateCart();
   toggleCart();
-  showToast("✅ تم إرسال طلبك على واتساب");
+  showToast("✅ تم تأكيد طلبك بنجاح");
 }
 
 // ========== LIVE SEARCH ==========
