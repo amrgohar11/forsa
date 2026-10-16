@@ -1090,7 +1090,11 @@ async function applyCoupon() {
       return;
     }
 
-    const result = await fbValidateCoupon(code, subtotal);
+    // ===== احصل على رقم الموبايل لو موجود =====
+    const phoneInput = document.getElementById("phone");
+    const customerPhone = phoneInput ? phoneInput.value.trim() : "";
+
+    const result = await fbValidateCoupon(code, subtotal, customerPhone);
 
     if (!result.valid) {
       showCouponMessage("❌ " + result.error, "error");
