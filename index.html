@@ -338,7 +338,31 @@
     </div>
     <div class="cart-items" id="cart-items"></div>
     <div class="cart-footer">
+      <!-- ===== Coupon Section ===== -->
+      <div class="coupon-section">
+        <label class="coupon-label">🎟️ عندك كود خصم؟</label>
+        <div class="coupon-input-wrap" id="coupon-input-wrap">
+          <input type="text" id="coupon-input" class="coupon-input" placeholder="FORSA10" maxlength="20" />
+          <button class="coupon-apply-btn" id="coupon-apply-btn" onclick="applyCoupon()">تطبيق</button>
+        </div>
+        <div id="coupon-message"></div>
+        <div id="coupon-applied" style="display:none;">
+          <div class="coupon-applied">
+            <div class="coupon-applied-info">
+              <span class="coupon-applied-icon">🎟️</span>
+              <div>
+                <div class="coupon-applied-code" id="coupon-applied-code">FORSA10</div>
+                <div class="coupon-applied-discount" id="coupon-applied-discount">-0 جنيه</div>
+              </div>
+            </div>
+            <button class="coupon-remove-btn" onclick="removeCoupon()">إزالة</button>
+          </div>
+        </div>
+      </div>
+      <!-- ===== End Coupon Section ===== -->
+
       <div class="cart-row"><span>الإجمالي:</span><span id="cart-subtotal">0</span></div>
+      <div class="cart-row" id="cart-discount-row" style="display:none;"><span>🎟️ الخصم:</span><span id="cart-discount" style="color: #4CAF50;">-0 جنيه</span></div>
       <div class="cart-row"><span>الشحن:</span><span>40 جنيه</span></div>
       <div class="cart-row total"><span>الإجمالي النهائي:</span><span id="cart-total">40</span></div>
       <button class="btn-primary full" onclick="openCheckout()">إتمام الطلب</button>
