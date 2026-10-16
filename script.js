@@ -571,27 +571,29 @@ async function sendWhatsApp(e) {
 
   localStorage.setItem('forsa_last_order', JSON.stringify(orderForConfirmation));
 
-  // ===== إرسال إشعار واتساب للعميل (WhatsApp Cloud API) =====
-  // ⚠️ نستنى الإرسال يخلص قبل ما نغير الصفحة
+  // ===== إرسال إشعار واتساب (مع console.log للتشخيص) =====
   if (typeof sendWhatsAppMessage === "function") {
     const confirmationMsg = buildOrderConfirmationMessage(orderForConfirmation);
-    try {
-      const result = await sendWhatsAppMessage(phone, confirmationMsg);
-      if (result.success) {
-        console.log("✅ رسالة التأكيد اتبعتت على واتساب");
-      } else {
-        console.warn("⚠️ فشل إرسال رسالة التأكيد:", result.error);
-      }
-    } catch (err) {
-      console.warn("⚠️ WhatsApp error:", err);
-    }
+    console.log("📤 جاري إرسال رسالة واتساب للرقم:", phone);
+    
+    sendWhatsAppMessage(phone, confirmationMsg)
+      .then(result => {
+        console.log("✅ WhatsApp result:", result);
+      })
+      .catch(err => {
+        console.error("❌ WhatsApp error:", err);
+      });
+  } else {
+    console.warn("⚠️ sendWhatsAppMessage غير متاح");
   }
 
   appliedCoupon = null;
   localStorage.removeItem("forsa_coupon");
 
-  // ===== روح لصفحة التأكيد =====
-  window.location.href = 'order-confirmation.html';
+  // ===== استنى ثانيتين قبل التحويل =====
+  setTimeout(() => {
+    window.location.href = 'order-confirmation.html';
+  }, 2000);
 }
 
 // ========== LIVE SEARCH ==========
