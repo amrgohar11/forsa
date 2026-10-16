@@ -10,6 +10,9 @@ const PAYMENT_INFO = {
   vodafone: "01061863235"
 };
 
+// ========== COUPON STATE (لازم يكون فوق) ==========
+let appliedCoupon = null;
+
 let allData = { categories: [], products: [] };
 let cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
 let favorites = JSON.parse(localStorage.getItem(FAV_KEY) || "[]");
@@ -317,7 +320,6 @@ function renderProduct() {
   document.getElementById("product-detail").innerHTML = html;
   observeFadeUp();
 
-  // ===== Meta Pixel: ViewContent =====
   if (typeof fbq !== "undefined") {
     fbq('track', 'ViewContent', {
       content_name: p.name,
@@ -357,14 +359,12 @@ function addToCartDetail(event) {
   updateCart();
   showToast(`✅ تم إضافة ${currentQty} × ${currentProduct.name} للسلة`);
 
-  // ===== Fly to Cart Animation =====
   if (typeof flyToCart === "function" && event && event.target) {
     const img = document.getElementById("main-image") || 
                 document.querySelector(".gallery-placeholder");
     if (img) flyToCart(img);
   }
 
-  // ===== Meta Pixel: AddToCart =====
   if (typeof fbq !== "undefined") {
     fbq('track', 'AddToCart', {
       content_name: currentProduct.name,
@@ -386,14 +386,12 @@ function orderNowDetail(event) {
   if (cartEl && !cartEl.classList.contains("open")) toggleCart();
   showToast(`⚡ ${currentProduct.name} جاهز للطلب`);
 
-  // ===== Fly to Cart Animation =====
   if (typeof flyToCart === "function" && event && event.target) {
     const img = document.getElementById("main-image") || 
                 document.querySelector(".gallery-placeholder");
     if (img) flyToCart(img);
   }
 
-  // ===== Meta Pixel: AddToCart =====
   if (typeof fbq !== "undefined") {
     fbq('track', 'AddToCart', {
       content_name: currentProduct.name,
@@ -407,7 +405,6 @@ function orderNowDetail(event) {
 
 // ========== FAVORITES ==========
 function toggleFav(id, event) {
-  // ===== Heart Burst Animation =====
   if (typeof heartBurst === "function" && event && event.target) {
     heartBurst(event.target);
   }
@@ -473,7 +470,23 @@ function updateCart() {
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   if (subtotalEl) subtotalEl.textContent = subtotal;
-  if (totalEl) totalEl.textContent = subtotal + SHIPPING;
+
+  // ===== Coupon Discount =====
+  let discount = 0;
+  const discountRow = document.getElementById("cart-discount-row");
+  const discountEl = document.getElementById("cart-discount");
+
+  if (appliedCoupon && appliedCoupon.discount > 0) {
+    discount = appliedCoupon.discount;
+    if (discountRow) discountRow.style.display = "flex";
+    if (discountEl) discountEl.textContent = `-${discount} جنيه`;
+  } else {
+    if (discountRow) discountRow.style.display = "none";
+  }
+
+  const finalTotal = Math.max(0, subtotal + SHIPPING - discount);
+  if (totalEl) totalEl.textContent = finalTotal;
+
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
@@ -493,7 +506,6 @@ function openCheckout() {
   if (modal) modal.classList.add("active");
   document.body.style.overflow = "hidden";
 
-  // ===== Meta Pixel: InitiateCheckout =====
   if (typeof fbq !== "undefined") {
     const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
     const numItems = cart.reduce((s, i) => s + i.qty, 0);
@@ -592,9 +604,14 @@ async function sendWhatsApp(e) {
   cart.forEach(item => {
     subtotal += item.price * item.qty;
   });
-  const total = subtotal + SHIPPING;
 
-  // ===== احفظ نسخة من المنتجات =====
+  let discount = 0;
+  if (appliedCoupon && appliedCoupon.discount > 0) {
+    discount = appliedCoupon.discount;
+  }
+
+  const total = Math.max(0, subtotal + SHIPPING - discount);
+
   const orderItems = cart.map(item => ({
     id: item.id,
     name: item.name,
@@ -604,7 +621,6 @@ async function sendWhatsApp(e) {
     icon: item.icon || "📦"
   }));
 
-  // ===== Meta Pixel: Purchase =====
   if (typeof fbq !== "undefined") {
     const numItems = cart.reduce((s, i) => s + i.qty, 0);
     fbq('track', 'Purchase', {
@@ -620,8 +636,14 @@ async function sendWhatsApp(e) {
     subtotal,
     shipping: SHIPPING,
     total,
+    discount: discount,
+    couponCode: appliedCoupon ? appliedCoupon.code : null,
     paymentMethod: paymentNames[payment]
   });
+
+  if (appliedCoupon && typeof fbIncrementCouponUsage === "function") {
+    await fbIncrementCouponUsage(appliedCoupon.code);
+  }
 
   document.getElementById("checkout-form").reset();
 
@@ -635,7 +657,6 @@ async function sendWhatsApp(e) {
   updateCart();
   toggleCart();
 
-  // ===== حفظ بيانات الطلب للعرض في صفحة التأكيد =====
   const orderNumber = Math.floor(100000 + Math.random() * 900000);
   const orderForConfirmation = {
     orderNumber: orderNumber,
@@ -648,10 +669,11 @@ async function sendWhatsApp(e) {
     city: city
   };
 
-  // حفظ في localStorage
   localStorage.setItem('forsa_last_order', JSON.stringify(orderForConfirmation));
 
-  // تحويل على صفحة التأكيد
+  appliedCoupon = null;
+  localStorage.removeItem("forsa_coupon");
+
   window.location.href = 'order-confirmation.html';
 }
 
@@ -867,14 +889,12 @@ function addToCartRelated(e, id) {
   updateCart();
   showToast(`✅ تم إضافة ${product.name} للسلة`);
 
-  // ===== Fly to Cart Animation =====
   if (typeof flyToCart === "function" && e.target) {
     const card = e.target.closest(".product-card");
     const img = card ? card.querySelector(".product-img img") || card.querySelector(".product-img") : null;
     if (img) flyToCart(img);
   }
 
-  // ===== Meta Pixel: AddToCart =====
   if (typeof fbq !== "undefined") {
     fbq('track', 'AddToCart', {
       content_name: product.name,
@@ -898,14 +918,12 @@ function orderNowRelated(e, id) {
   if (cartEl && !cartEl.classList.contains("open")) toggleCart();
   showToast(`⚡ ${product.name} جاهز للطلب`);
 
-  // ===== Fly to Cart Animation =====
   if (typeof flyToCart === "function" && e.target) {
     const card = e.target.closest(".product-card");
     const img = card ? card.querySelector(".product-img img") || card.querySelector(".product-img") : null;
     if (img) flyToCart(img);
   }
 
-  // ===== Meta Pixel: AddToCart =====
   if (typeof fbq !== "undefined") {
     fbq('track', 'AddToCart', {
       content_name: product.name,
@@ -921,7 +939,6 @@ function toggleFavRelated(e, id) {
   e.preventDefault();
   e.stopPropagation();
 
-  // ===== Heart Burst Animation =====
   if (typeof heartBurst === "function" && e.target) {
     heartBurst(e.target);
   }
@@ -1035,6 +1052,132 @@ window.addEventListener("scroll", () => {
   else header.classList.remove("scrolled");
 });
 
+// ============================================
+// ========== COUPON SYSTEM ==================
+// ============================================
+
+async function applyCoupon() {
+  const input = document.getElementById("coupon-input");
+  const btn = document.getElementById("coupon-apply-btn");
+  const messageEl = document.getElementById("coupon-message");
+
+  if (!input || !messageEl) return;
+
+  const code = input.value.trim().toUpperCase();
+
+  if (!code) {
+    showCouponMessage("⚠️ اكتب الكود الأول", "error");
+    return;
+  }
+
+  if (cart.length === 0) {
+    showCouponMessage("⚠️ السلة فاضية", "error");
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "⏳";
+  }
+
+  messageEl.innerHTML = "";
+
+  try {
+    const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+
+    if (typeof fbValidateCoupon !== "function") {
+      showCouponMessage("❌ حصلت مشكلة، جرب تاني", "error");
+      return;
+    }
+
+    const result = await fbValidateCoupon(code, subtotal);
+
+    if (!result.valid) {
+      showCouponMessage("❌ " + result.error, "error");
+      return;
+    }
+
+    appliedCoupon = {
+      code: code,
+      discount: result.discount,
+      coupon: result.coupon
+    };
+
+    showCouponMessage(`✅ تم تطبيق كود ${code} — وفّرت ${result.discount} جنيه!`, "success");
+    showAppliedCoupon();
+    updateCart();
+    localStorage.setItem("forsa_coupon", JSON.stringify(appliedCoupon));
+
+  } catch (e) {
+    console.error("Error applying coupon:", e);
+    showCouponMessage("❌ حصلت مشكلة، جرب تاني", "error");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "تطبيق";
+    }
+  }
+}
+
+function removeCoupon() {
+  appliedCoupon = null;
+  localStorage.removeItem("forsa_coupon");
+
+  const messageEl = document.getElementById("coupon-message");
+  if (messageEl) messageEl.innerHTML = "";
+
+  const appliedEl = document.getElementById("coupon-applied");
+  if (appliedEl) appliedEl.style.display = "none";
+
+  const inputWrap = document.getElementById("coupon-input-wrap");
+  if (inputWrap) inputWrap.style.display = "flex";
+
+  const input = document.getElementById("coupon-input");
+  if (input) input.value = "";
+
+  updateCart();
+
+  if (typeof showToast === "function") {
+    showToast("🎟️ تم إزالة الكوبون");
+  }
+}
+
+function showCouponMessage(msg, type) {
+  const messageEl = document.getElementById("coupon-message");
+  if (!messageEl) return;
+  messageEl.innerHTML = `<div class="coupon-message ${type}">${msg}</div>`;
+}
+
+function showAppliedCoupon() {
+  const appliedEl = document.getElementById("coupon-applied");
+  const codeEl = document.getElementById("coupon-applied-code");
+  const discountEl = document.getElementById("coupon-applied-discount");
+  const inputWrap = document.getElementById("coupon-input-wrap");
+  const messageEl = document.getElementById("coupon-message");
+
+  if (!appliedEl || !appliedCoupon) return;
+
+  if (codeEl) codeEl.textContent = appliedCoupon.code;
+  if (discountEl) discountEl.textContent = `-${appliedCoupon.discount} جنيه`;
+
+  appliedEl.style.display = "block";
+  if (inputWrap) inputWrap.style.display = "none";
+  if (messageEl) messageEl.innerHTML = "";
+}
+
+function loadCouponFromStorage() {
+  const saved = localStorage.getItem("forsa_coupon");
+  if (saved) {
+    try {
+      appliedCoupon = JSON.parse(saved);
+      showAppliedCoupon();
+    } catch (e) {
+      appliedCoupon = null;
+    }
+  }
+}
+
 // ========== INIT ==========
 loadData();
 updateCart();
+loadCouponFromStorage();
