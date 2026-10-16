@@ -486,7 +486,6 @@ async function sendWhatsApp(e) {
     vodafone: "📱 فودافون كاش"
   };
 
-  // ===== احفظ رقم الموبايل للاستخدام لاحقاً =====
   if (phone && phone.trim()) {
     localStorage.setItem(PHONE_KEY, phone.trim());
   }
@@ -503,7 +502,6 @@ async function sendWhatsApp(e) {
 
   const total = Math.max(0, subtotal + SHIPPING - discount);
 
-  // ===== احفظ نسخة من المنتجات =====
   const orderItems = cart.map(item => ({
     id: item.id,
     name: item.name,
@@ -513,7 +511,6 @@ async function sendWhatsApp(e) {
     icon: item.icon || "📦"
   }));
 
-  // ===== Meta Pixel: Purchase =====
   if (typeof fbq !== "undefined") {
     const numItems = cart.reduce((s, i) => s + i.qty, 0);
     fbq('track', 'Purchase', {
@@ -523,7 +520,6 @@ async function sendWhatsApp(e) {
     });
   }
 
-  // ===== حفظ الطلب =====
   const savedCoupon = appliedCoupon;
   await saveOrderToFirebase({
     name, phone, address, city, notes, payment,
@@ -536,7 +532,6 @@ async function sendWhatsApp(e) {
     paymentMethod: paymentNames[payment]
   });
 
-  // ===== زوّد عدّاد الكوبون =====
   if (savedCoupon && typeof fbIncrementCouponUsage === "function") {
     try {
       await fbIncrementCouponUsage(savedCoupon.code);
@@ -558,7 +553,6 @@ async function sendWhatsApp(e) {
   updateCart();
   toggleCart();
 
-  // ===== حفظ بيانات الطلب للعرض في صفحة التأكيد =====
   const orderNumber = Math.floor(100000 + Math.random() * 900000);
   const orderForConfirmation = {
     orderNumber: orderNumber,
@@ -578,20 +572,21 @@ async function sendWhatsApp(e) {
   localStorage.setItem('forsa_last_order', JSON.stringify(orderForConfirmation));
 
   // ===== إرسال إشعار واتساب للعميل (WhatsApp Cloud API) =====
+  // ⚠️ نستنى الإرسال يخلص قبل ما نغير الصفحة
   if (typeof sendWhatsAppMessage === "function") {
     const confirmationMsg = buildOrderConfirmationMessage(orderForConfirmation);
-    sendWhatsAppMessage(phone, confirmationMsg)
-      .then(result => {
-        if (result.success) {
-          console.log("✅ رسالة التأكيد اتبعتت على واتساب");
-        } else {
-          console.warn("⚠️ فشل إرسال رسالة التأكيد:", result.error);
-        }
-      })
-      .catch(err => console.warn("⚠️ WhatsApp error:", err));
+    try {
+      const result = await sendWhatsAppMessage(phone, confirmationMsg);
+      if (result.success) {
+        console.log("✅ رسالة التأكيد اتبعتت على واتساب");
+      } else {
+        console.warn("⚠️ فشل إرسال رسالة التأكيد:", result.error);
+      }
+    } catch (err) {
+      console.warn("⚠️ WhatsApp error:", err);
+    }
   }
 
-  // ===== امسح الكوبون =====
   appliedCoupon = null;
   localStorage.removeItem("forsa_coupon");
 
@@ -696,10 +691,7 @@ window.addEventListener("scroll", () => {
   else header.classList.remove("scrolled");
 });
 
-// ============================================
-// ========== COUPON SYSTEM ==================
-// ============================================
-
+// ========== COUPON SYSTEM ==========
 async function applyCoupon() {
   const input = document.getElementById("coupon-input");
   const btn = document.getElementById("coupon-apply-btn");
@@ -742,8 +734,6 @@ async function applyCoupon() {
       showCouponMessage("❌ حصلت مشكلة، جرب تاني", "error");
       return;
     }
-
-    console.log("🎟️ تطبيق كوبون:", code, "| رقم العميل:", customerPhone);
 
     const result = await fbValidateCoupon(code, subtotal, customerPhone);
 
