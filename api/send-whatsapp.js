@@ -71,15 +71,14 @@ export default async function handler(req, res) {
         }
       };
     } else {
-      // Text message (only for 24h reply window)
+      // Default to hello_world template
       payload = {
         messaging_product: "whatsapp",
-        recipient_type: "individual",
         to: intlPhone,
-        type: "text",
-        text: {
-          preview_url: false,
-          body: message || ""
+        type: "template",
+        template: {
+          name: "hello_world",
+          language: { code: "en_US" }
         }
       };
     }
