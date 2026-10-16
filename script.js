@@ -458,7 +458,7 @@ async function saveOrderToFirebase(orderData) {
   const orderId = await fbAddOrder(order);
 
   if (orderId) {
-    console.log("✅ تم حفظ الطلب في Firebase برقم:", orderId);
+    console.log("✅ تم حفظ الطلب في Firebase برقم:", orderId, "| orderNumber:", orderData.orderNumber);
     if (typeof sendAdminNotification === "function") {
       sendAdminNotification(orderData);
     }
@@ -511,6 +511,11 @@ async function sendWhatsApp(e) {
     icon: item.icon || "📦"
   }));
 
+  // ============================================
+  // ✅✅✅ ولّد رقم الطلب هنا — قبل الحفظ ✅✅✅
+  // ============================================
+  const orderNumber = Math.floor(100000 + Math.random() * 900000);
+
   if (typeof fbq !== "undefined") {
     const numItems = cart.reduce((s, i) => s + i.qty, 0);
     fbq('track', 'Purchase', {
@@ -521,7 +526,12 @@ async function sendWhatsApp(e) {
   }
 
   const savedCoupon = appliedCoupon;
+
+  // ============================================
+  // ✅ احفظ الطلب في Firebase مع orderNumber
+  // ============================================
   await saveOrderToFirebase({
+    orderNumber,  // ← ✅✅✅ السطر الأهم
     name, phone, address, city, notes, payment,
     items: orderItems,
     subtotal,
@@ -553,9 +563,9 @@ async function sendWhatsApp(e) {
   updateCart();
   toggleCart();
 
-  const orderNumber = Math.floor(100000 + Math.random() * 900000);
+  // ===== حفظ بيانات الطلب للعرض في صفحة التأكيد =====
   const orderForConfirmation = {
-    orderNumber: orderNumber,
+    orderNumber: orderNumber,  // ← ✅ نفس الرقم اللي اتحفظ
     createdAt: Date.now(),
     items: orderItems,
     subtotal: subtotal,
