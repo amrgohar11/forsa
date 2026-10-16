@@ -228,6 +228,10 @@
         <button class="btn-lime" onclick="openCouponModal()">➕ إضافة كوبون</button>
         <button class="btn-blue" onclick="loadCoupons()">🔄 تحديث الكوبونات</button>
       </div>
+      <div class="admin-actions hidden" id="categories-actions">
+        <button class="btn-lime" onclick="openCategoryModal()">➕ إضافة قسم</button>
+        <button class="btn-blue" onclick="loadCategories()">🔄 تحديث الأقسام</button>
+      </div>
     </div>
 
     <!-- Tabs -->
@@ -235,6 +239,7 @@
       <button class="admin-tab-btn active" onclick="switchAdminTab('products')" id="tab-products">📦 المنتجات</button>
       <button class="admin-tab-btn" onclick="switchAdminTab('orders')" id="tab-orders">🛒 الطلبات</button>
       <button class="admin-tab-btn" onclick="switchAdminTab('coupons')" id="tab-coupons">🎟️ الكوبونات</button>
+      <button class="admin-tab-btn" onclick="switchAdminTab('categories')" id="tab-categories">📂 الأقسام</button>
     </div>
 
     <!-- Products Section -->
@@ -338,6 +343,34 @@
         <div class="empty-icon">🎟️</div>
         <h3>لا توجد كوبونات بعد</h3>
         <p>اضغط "إضافة كوبون" عشان تعمل أول كوبون.</p>
+      </div>
+    </div>
+
+    <!-- Categories Section (NEW) -->
+    <div id="section-categories" class="hidden">
+      <div class="admin-stats">
+        <div class="stat-card"><strong id="stat-categories-total">0</strong><span>إجمالي الأقسام</span></div>
+        <div class="stat-card"><strong id="stat-categories-images">0</strong><span>أقسام بصور</span></div>
+        <div class="stat-card"><strong id="stat-categories-emojis">0</strong><span>أقسام بإيموجي</span></div>
+      </div>
+
+      <div class="admin-search">
+        <input type="text" id="categories-search" placeholder="🔍 ابحث باسم القسم أو الـ ID..." oninput="filterCategories()" />
+      </div>
+
+      <div class="admin-table">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>القسم</th>
+              <th>ID</th>
+              <th>نوع الأيقونة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="admin-categories-body"></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -459,6 +492,49 @@
     </div>
   </div>
 
+  <!-- Category Modal (NEW) -->
+  <div class="admin-modal-overlay" id="category-modal" onclick="closeCategoryModal(event)">
+    <div class="admin-modal" onclick="event.stopPropagation()">
+      <h2 id="category-modal-title">إضافة قسم</h2>
+      <form id="category-form" onsubmit="saveCategory(event)">
+        <label>ID القسم (بالإنجليزي، حروف صغيرة وأرقام وشرطات فقط)</label>
+        <input 
+          type="text" 
+          id="cat-id" 
+          placeholder="مثال: earbuds" 
+          required 
+          pattern="[a-z0-9-]+" 
+          title="حروف إنجليزية صغيرة وأرقام وشرطات فقط"
+          style="text-transform: lowercase;"
+        />
+        <small class="field-hint">💡 ده المفتاح في Firebase — متغيّرش الـ ID بعد الإنشاء</small>
+
+        <label>اسم القسم</label>
+        <input type="text" id="cat-name" placeholder="مثال: إيربودز" required />
+
+        <label>أيقونة أو رابط صورة</label>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <input 
+            type="text" 
+            id="cat-icon" 
+            placeholder="🎧 أو https://example.com/icon.png" 
+            oninput="previewCategoryIcon()" 
+            style="flex:1;" 
+          />
+          <div id="cat-icon-preview" style="width:60px; height:60px; display:flex; align-items:center; justify-content:center; background:var(--black); border:1px solid var(--border); border-radius:10px; flex-shrink:0;">
+            <span style="font-size:32px;">📦</span>
+          </div>
+        </div>
+        <small class="field-hint">💡 اكتب إيموجي زي <code>🎧</code> — أو الصق رابط صورة يبدأ بـ <code>https://</code> وهيتم عرضها كصورة</small>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-lime">💾 حفظ</button>
+          <button type="button" class="btn-gray" onclick="closeCategoryModal(null, true)">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -497,6 +573,7 @@
   <script src="admin.js"></script>
   <script src="admin-orders.js"></script>
   <script src="admin-coupons.js"></script>
+  <script src="admin-categories.js"></script>
   <script src="animations.js"></script>
 </body>
 </html>

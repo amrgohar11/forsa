@@ -120,11 +120,9 @@ function saveProduct(e) {
   const oldPrice = parseFloat(document.getElementById("p-oldprice").value) || 0;
   const price = parseFloat(document.getElementById("p-price").value);
 
-  // معالجة الصور المتعددة
   const imagesText = document.getElementById("p-images").value.trim();
   const images = imagesText ? imagesText.split("\n").map(s => s.trim()).filter(Boolean) : [];
 
-  // معالجة المميزات
   const featuresText = document.getElementById("p-features").value.trim();
   const features = featuresText ? featuresText.split("\n").map(s => s.trim()).filter(Boolean) : [];
 
@@ -260,6 +258,51 @@ async function uploadToFirebase() {
     showToast("✅ تم رفع البيانات على Firebase");
   } else {
     showToast("❌ فشل الرفع", true);
+  }
+}
+
+// ============================================
+// ========== SWITCH ADMIN TAB (NEW) ==========
+// ============================================
+function switchAdminTab(tab) {
+  // إخفاء كل الـ Sections
+  document.querySelectorAll('[id^="section-"]').forEach(s => s.classList.add("hidden"));
+  
+  // إزالة الـ active من كل الـ tabs
+  document.querySelectorAll('[id^="tab-"]').forEach(t => t.classList.remove("active"));
+  
+  // إخفاء كل الأزرار
+  document.querySelectorAll('.admin-actions').forEach(a => a.classList.add("hidden"));
+
+  // إظهار الـ Section المطلوب
+  const section = document.getElementById("section-" + tab);
+  if (section) section.classList.remove("hidden");
+
+  // تفعيل الـ Tab
+  const tabBtn = document.getElementById("tab-" + tab);
+  if (tabBtn) tabBtn.classList.add("active");
+
+  // إظهار الأزرار المناسبة
+  const actions = document.getElementById(tab + "-actions");
+  if (actions) actions.classList.remove("hidden");
+
+  // تحديث عنوان الصفحة
+  const pageTitle = document.getElementById("page-title");
+  const titles = {
+    products: "إدارة المنتجات",
+    orders: "إدارة الطلبات",
+    coupons: "إدارة الكوبونات",
+    categories: "إدارة الأقسام"
+  };
+  if (pageTitle && titles[tab]) pageTitle.textContent = titles[tab];
+
+  // تحميل البيانات المناسبة
+  if (tab === "orders" && typeof loadOrders === "function") {
+    loadOrders();
+  } else if (tab === "coupons" && typeof loadCoupons === "function") {
+    loadCoupons();
+  } else if (tab === "categories" && typeof loadCategories === "function") {
+    loadCategories();
   }
 }
 

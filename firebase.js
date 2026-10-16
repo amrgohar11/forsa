@@ -101,15 +101,50 @@ async function fbDeleteProduct(id) {
   }
 }
 
-// إضافة قسم
+// ========== CATEGORIES HELPERS (NEW) ==========
+
+// إضافة قسم جديد
 async function fbAddCategory(id, category) {
-  if (!db) return null;
+  if (!db) return false;
   try {
-    await db.collection("categories").doc(id).set(category);
-    return id;
+    await db.collection("categories").doc(id).set({
+      name: category.name,
+      icon: category.icon || "📦"
+    });
+    console.log("✅ تم إضافة القسم:", id);
+    return true;
   } catch (e) {
     console.error("Error adding category:", e);
-    return null;
+    return false;
+  }
+}
+
+// تعديل قسم
+async function fbUpdateCategory(id, data) {
+  if (!db) return false;
+  try {
+    await db.collection("categories").doc(id).update({
+      name: data.name,
+      icon: data.icon || "📦"
+    });
+    console.log("✅ تم تعديل القسم:", id);
+    return true;
+  } catch (e) {
+    console.error("Error updating category:", e);
+    return false;
+  }
+}
+
+// حذف قسم
+async function fbDeleteCategory(id) {
+  if (!db) return false;
+  try {
+    await db.collection("categories").doc(id).delete();
+    console.log("✅ تم حذف القسم:", id);
+    return true;
+  } catch (e) {
+    console.error("Error deleting category:", e);
+    return false;
   }
 }
 
