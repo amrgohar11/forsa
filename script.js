@@ -648,7 +648,9 @@ async function applyCoupon() {
       return;
     }
 
-    const result = await fbValidateCoupon(code, subtotal);
+    const phoneInput = document.getElementById("phone");
+const customerPhone = phoneInput ? phoneInput.value.trim() : "";
+const result = await fbValidateCoupon(code, subtotal, customerPhone);
 
     if (!result.valid) {
       showCouponMessage("❌ " + result.error, "error");
