@@ -96,12 +96,26 @@ async function loadData() {
 function renderCategories() {
   const grid = document.getElementById("cat-grid");
   if (!grid) return;
-  grid.innerHTML = allData.categories.map(c => `
-    <div class="cat-card fade-up" onclick="goToCategory('${c.id}')">
-      <span class="cat-icon">${c.icon}</span>
-      ${c.name}
-    </div>
-  `).join("");
+  grid.innerHTML = allData.categories.map(c => {
+    // لو الأيقونة رابط صورة، اعرضها كصورة
+    const isImageUrl = c.icon && (
+      c.icon.startsWith("http://") || 
+      c.icon.startsWith("https://") || 
+      c.icon.startsWith("/") || 
+      c.icon.startsWith("data:image")
+    );
+    
+    const iconHtml = isImageUrl
+      ? `<img src="${c.icon}" alt="${c.name}" class="cat-icon-img" loading="lazy" onerror="this.outerHTML='<span class=\\'cat-icon\\'>📦</span>'" />`
+      : `<span class="cat-icon">${c.icon || "📦"}</span>`;
+    
+    return `
+      <div class="cat-card fade-up" onclick="goToCategory('${c.id}')">
+        ${iconHtml}
+        ${c.name}
+      </div>
+    `;
+  }).join("");
 }
 
 function goToCategory(catId) {

@@ -161,6 +161,20 @@ section { padding: 80px 0; }
 .cat-card .cat-icon { font-size: 40px; display: block; margin-bottom: 14px; display: inline-block; transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
 .cat-card:hover .cat-icon { transform: scale(1.2) rotate(5deg); }
 
+/* Category image icon (NEW) */
+.cat-icon-img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  display: inline-block;
+  margin-bottom: 14px;
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border-radius: 12px;
+}
+.cat-card:hover .cat-icon-img {
+  transform: scale(1.15) rotate(3deg);
+}
+
 /* Products Tabs */
 .products-tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 40px; background: var(--black-2); padding: 6px; border-radius: 30px; width: fit-content; margin-left: auto; margin-right: auto; border: 1px solid var(--border); }
 .tab-btn { background: transparent; border: none; color: var(--gray); padding: 12px 28px; border-radius: 24px; font-weight: 700; cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 15px; transition: var(--transition); }

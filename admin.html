@@ -158,6 +158,24 @@
       transition: var(--transition);
     }
     .topbar-back:hover { background: rgba(0, 0, 0, 0.1); }
+
+    /* ===== Icon Field Hint ===== */
+    .field-hint {
+      display: block;
+      font-size: 11px;
+      color: var(--gray);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+    .field-hint code {
+      background: var(--black);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--lime);
+      font-family: 'Montserrat', monospace;
+      font-size: 10px;
+    }
+
     @media (max-width: 768px) {
       .topbar-admin-inner {
         justify-content: center;
@@ -343,8 +361,11 @@
         <label>السعر القديم (اختياري - لو فيه خصم)</label>
         <input type="number" id="p-oldprice" placeholder="400" />
 
-        <label>أيقونة (اختياري)</label>
-        <input type="text" id="p-icon" placeholder="🎧" />
+        <label>أيقونة أو رابط صورة (اختياري)</label>
+        <input type="text" id="p-icon" placeholder="🎧 أو https://example.com/icon.png" />
+        <small class="field-hint">
+          💡 اكتب إيموجي زي <code>🎧</code> — أو الصق رابط صورة يبدأ بـ <code>https://</code> وهيتم عرضها كصورة.
+        </small>
 
         <label>رابط الصورة الرئيسية</label>
         <input type="text" id="p-image" placeholder="https://files.catbox.moe/xxxxx.png" />
