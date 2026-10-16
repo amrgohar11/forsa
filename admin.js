@@ -312,28 +312,85 @@ function showToast(msg, isError = false) {
   }, 2500);
 }
 
-// ========== UPLOAD TO FIREBASE ==========
+// ========== UPLOAD TO FIREBASE (SAFE) ==========
 async function uploadToFirebase() {
-  if (typeof initFirebase !== "function") {
-    showToast("❌ Firebase مش محمّل", true);
+  if (typeof initFirebase !== "function" || !initFirebase()) {
+    showToast("❌ Firebase مش متاح", true);
     return;
   }
-  
-  if (!initFirebase()) {
-    showToast("❌ فشل الاتصال بـ Firebase", true);
-    return;
-  }
-  
-  if (!confirm("هيتم رفع كل المنتجات والأقسام على Firebase. متأكد؟")) return;
-  
-  showToast("⏳ جاري الرفع...");
-  
-  const success = await fbUploadAll(allData);
-  
-  if (success) {
-    showToast("✅ تم رفع البيانات على Firebase");
-  } else {
-    showToast("❌ فشل الرفع", true);
+
+  if (!confirm("⚠️ تحذير:\n\nالرفع هيستبدل كل البيانات على Firebase بالبيانات اللي عندك.\n\nهل أنت متأكد؟")) return;
+
+  showToast("⏳ جاري التحقق من البيانات...");
+
+  try {
+    // ===== 1) جيب آخر نسخة من Firebase =====
+    const [fbProducts, fbCategories] = await Promise.all([
+      fbGetProducts(),
+      fbGetCategories()
+    ]);
+
+    // ===== 2) ادمج البيانات (Firebase أولاً في الأقسام) =====
+    let mergedProducts = allData.products || [];
+    let mergedCategories = allData.categories || [];
+
+    // لو Firebase فيه منتجات، استخدمها
+    if (fbProducts && fbProducts.length > 0) {
+      mergedProducts = fbProducts;
+      console.log("✅ استخدام المنتجات من Firebase");
+    }
+
+    // لو Firebase فيه أقسام، استخدمها (عشان الصور محفوظة)
+    if (fbCategories && fbCategories.length > 0) {
+      mergedCategories = fbCategories;
+      console.log("✅ استخدام الأقسام من Firebase (الصور محفوظة)");
+    }
+
+    // ===== 3) لو الأقسام عند العميل فيها صور أكثر، استخدمها =====
+    const localCatsWithImages = (allData.categories || []).filter(c =>
+      c.icon && (c.icon.startsWith("http") || c.icon.startsWith("/") || c.icon.startsWith("data:image"))
+    );
+
+    if (localCatsWithImages.length > 0) {
+      // دمج: خد من Firebase، بس لو العميل عنده صورة محدّثة، خدها
+      const merged = mergedCategories.map(fbCat => {
+        const localCat = (allData.categories || []).find(c => c.id === fbCat.id);
+        if (localCat && localCat.icon &&
+            (localCat.icon.startsWith("http") || localCat.icon.startsWith("/") || localCat.icon.startsWith("data:image"))) {
+          return { ...fbCat, ...localCat };
+        }
+        return fbCat;
+      });
+      mergedCategories = merged;
+      console.log("✅ تم دمج الأقسام (الصور محدّثة)");
+    }
+
+    // ===== 4) حدّث allData =====
+    allData = {
+      products: mergedProducts,
+      categories: mergedCategories
+    };
+
+    // حدّث localStorage
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+
+    // ===== 5) رفع على Firebase =====
+    showToast("⏳ جاري الرفع...");
+    const success = await fbUploadAll(allData);
+
+    if (success) {
+      showToast("✅ تم رفع البيانات على Firebase بأمان");
+      console.log("✅ Firebase محدّث:", {
+        products: allData.products.length,
+        categories: allData.categories.length
+      });
+    } else {
+      showToast("❌ فشل الرفع", true);
+    }
+
+  } catch (e) {
+    console.error("❌ Error uploading:", e);
+    showToast("❌ حصل خطأ: " + e.message, true);
   }
 }
 
