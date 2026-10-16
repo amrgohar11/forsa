@@ -2,11 +2,40 @@ const STORAGE_KEY = "forsa_products";
 let allData = { categories: [], products: [] };
 let editId = null;
 
-// ========== LOAD DATA ==========
+// ========== LOAD DATA (ياخد من Firebase الأول) ==========
 async function loadData() {
+  // ===== 1) جرب Firebase الأول =====
+  if (typeof initFirebase === "function" && initFirebase()) {
+    try {
+      const [fbProducts, fbCategories] = await Promise.all([
+        fbGetProducts(),
+        fbGetCategories()
+      ]);
+      
+      if (fbProducts && fbProducts.length > 0) {
+        allData = {
+          products: fbProducts,
+          categories: fbCategories || []
+        };
+        // حدّث localStorage بالنسخة الصح
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+        console.log("✅ تم تحميل البيانات من Firebase (الصور محدّثة)");
+        
+        renderTable();
+        populateCategories();
+        updateStats();
+        return;
+      }
+    } catch (e) {
+      console.warn("Firebase فشل، هنستخدم localStorage:", e);
+    }
+  }
+  
+  // ===== 2) Fallback على localStorage =====
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     allData = JSON.parse(saved);
+    console.log("⚠️ تم تحميل البيانات من localStorage");
   } else {
     allData = {
       categories: [
@@ -179,34 +208,81 @@ function deleteProduct(id) {
   showToast("🗑️ تم حذف المنتج");
 }
 
-// ========== EXPORT / IMPORT ==========
-function exportData() {
-  const dataStr = JSON.stringify(allData, null, 2);
-  const blob = new Blob([dataStr], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "forsa-products.json";
-  a.click();
-  showToast("⬇️ تم تصدير البيانات");
+// ========== EXPORT (من Firebase مباشرة) ==========
+async function exportData() {
+  showToast("⏳ جاري جلب البيانات من Firebase...");
+  
+  try {
+    // ===== جيب البيانات الحقيقية من Firebase =====
+    if (typeof initFirebase === "function" && initFirebase()) {
+      const [fbProducts, fbCategories] = await Promise.all([
+        fbGetProducts(),
+        fbGetCategories()
+      ]);
+      
+      if (fbProducts && fbCategories) {
+        allData = {
+          products: fbProducts,
+          categories: fbCategories
+        };
+        // حدّث localStorage بالنسخة الصح
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+        console.log("✅ تم تحديث localStorage من Firebase");
+      }
+    }
+    
+    // ===== صدّر البيانات المحدثة =====
+    const dataStr = JSON.stringify(allData, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `forsa-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    showToast("✅ تم تصدير البيانات (من Firebase)");
+  } catch (e) {
+    console.error("Error exporting:", e);
+    showToast("❌ فشل التصدير", true);
+  }
 }
 
+// ========== IMPORT (مع رفع على Firebase) ==========
 function importData() {
   const input = document.createElement("input");
   input.type = "file";
   input.accept = "application/json";
   input.onchange = e => {
     const file = e.target.files[0];
+    if (!file) return;
+    
     const reader = new FileReader();
-    reader.onload = ev => {
+    reader.onload = async ev => {
       try {
-        allData = JSON.parse(ev.target.result);
+        const importedData = JSON.parse(ev.target.result);
+        
+        // تحقق إن الملف فيه البيانات الصحيحة
+        if (!importedData.products || !importedData.categories) {
+          showToast("❌ الملف مش فيه البيانات المطلوبة", true);
+          return;
+        }
+        
+        // حدّث allData و localStorage
+        allData = importedData;
         saveData();
         renderTable();
         populateCategories();
         updateStats();
-        showToast("✅ تم استيراد البيانات");
-      } catch {
+        
+        // ===== اسأل المستخدم يرفع على Firebase =====
+        if (confirm("✅ تم استيراد البيانات محليًا.\n\n⚠️ مهم: عايز ترفعها على Firebase عشان تظهر في الموقع؟\n\n(اضغط OK للرفع على Firebase)")) {
+          await uploadToFirebase();
+        } else {
+          showToast("⚠️ تم الاستيراد (محليًا) — لم يتم الرفع على Firebase", true);
+        }
+      } catch (err) {
+        console.error("Import error:", err);
         showToast("❌ ملف غير صالح", true);
       }
     };
@@ -261,9 +337,7 @@ async function uploadToFirebase() {
   }
 }
 
-// ============================================
-// ========== SWITCH ADMIN TAB (NEW) ==========
-// ============================================
+// ========== SWITCH ADMIN TAB ==========
 function switchAdminTab(tab) {
   // إخفاء كل الـ Sections
   document.querySelectorAll('[id^="section-"]').forEach(s => s.classList.add("hidden"));
