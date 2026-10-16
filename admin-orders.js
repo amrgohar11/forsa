@@ -4,23 +4,38 @@ let filteredOrders = [];
 
 // ========== SWITCH TAB ==========
 function switchAdminTab(tab) {
+  // Remove active from all tabs
   document.querySelectorAll(".admin-tab-btn").forEach(b => b.classList.remove("active"));
   const tabBtn = document.getElementById("tab-" + tab);
   if (tabBtn) tabBtn.classList.add("active");
 
+  // Hide all sections
+  document.getElementById("section-products").classList.add("hidden");
+  document.getElementById("section-orders").classList.add("hidden");
+  const couponsSection = document.getElementById("section-coupons");
+  if (couponsSection) couponsSection.classList.add("hidden");
+
+  // Hide all actions
+  document.getElementById("products-actions").classList.add("hidden");
+  document.getElementById("orders-actions").classList.add("hidden");
+  const couponsActions = document.getElementById("coupons-actions");
+  if (couponsActions) couponsActions.classList.add("hidden");
+
+  // Show current section
   if (tab === "products") {
     document.getElementById("section-products").classList.remove("hidden");
-    document.getElementById("section-orders").classList.add("hidden");
     document.getElementById("products-actions").classList.remove("hidden");
-    document.getElementById("orders-actions").classList.add("hidden");
     document.getElementById("page-title").textContent = "إدارة المنتجات";
-  } else {
-    document.getElementById("section-products").classList.add("hidden");
+  } else if (tab === "orders") {
     document.getElementById("section-orders").classList.remove("hidden");
-    document.getElementById("products-actions").classList.add("hidden");
     document.getElementById("orders-actions").classList.remove("hidden");
     document.getElementById("page-title").textContent = "إدارة الطلبات";
     loadOrders();
+  } else if (tab === "coupons") {
+    if (couponsSection) couponsSection.classList.remove("hidden");
+    if (couponsActions) couponsActions.classList.remove("hidden");
+    document.getElementById("page-title").textContent = "إدارة الكوبونات";
+    loadCoupons();
   }
 }
 

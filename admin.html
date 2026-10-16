@@ -102,6 +102,13 @@
     .order-date { color: var(--gray); font-size: 12px; }
     .hidden { display: none !important; }
 
+    /* ===== Coupons ===== */
+    .coupon-code-badge { display: inline-block; background: rgba(184, 242, 58, 0.15); color: var(--lime); border: 1px solid rgba(184, 242, 58, 0.3); padding: 4px 12px; border-radius: 20px; font-weight: 900; font-family: 'Montserrat', sans-serif; letter-spacing: 1px; font-size: 13px; }
+    .coupon-discount-badge { display: inline-block; background: rgba(23, 105, 255, 0.15); color: var(--blue-light); border: 1px solid rgba(23, 105, 255, 0.3); padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 13px; }
+    .coupon-status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; }
+    .coupon-status.active { background: rgba(76, 175, 80, 0.15); color: #4CAF50; border: 1px solid rgba(76, 175, 80, 0.3); }
+    .coupon-status.inactive { background: rgba(255, 68, 68, 0.15); color: var(--red); border: 1px solid rgba(255, 68, 68, 0.3); }
+
     /* ===== Logout Button ===== */
     .logout-btn {
       background: rgba(255, 68, 68, 0.15);
@@ -199,12 +206,17 @@
       <div class="admin-actions hidden" id="orders-actions">
         <button class="btn-blue" onclick="loadOrders()">🔄 تحديث الطلبات</button>
       </div>
+      <div class="admin-actions hidden" id="coupons-actions">
+        <button class="btn-lime" onclick="openCouponModal()">➕ إضافة كوبون</button>
+        <button class="btn-blue" onclick="loadCoupons()">🔄 تحديث الكوبونات</button>
+      </div>
     </div>
 
     <!-- Tabs -->
     <div class="admin-tabs fade-up">
       <button class="admin-tab-btn active" onclick="switchAdminTab('products')" id="tab-products">📦 المنتجات</button>
       <button class="admin-tab-btn" onclick="switchAdminTab('orders')" id="tab-orders">🛒 الطلبات</button>
+      <button class="admin-tab-btn" onclick="switchAdminTab('coupons')" id="tab-coupons">🎟️ الكوبونات</button>
     </div>
 
     <!-- Products Section -->
@@ -271,6 +283,43 @@
         <div class="empty-icon">🛒</div>
         <h3>لا توجد طلبات بعد</h3>
         <p>لما عميل يعمل طلب، هيظهر هنا.</p>
+      </div>
+    </div>
+
+    <!-- Coupons Section -->
+    <div id="section-coupons" class="hidden">
+      <div class="admin-stats">
+        <div class="stat-card"><strong id="stat-coupons-total">0</strong><span>إجمالي الكوبونات</span></div>
+        <div class="stat-card"><strong id="stat-coupons-active">0</strong><span>كوبونات نشطة</span></div>
+        <div class="stat-card"><strong id="stat-coupons-used">0</strong><span>مرات الاستخدام</span></div>
+      </div>
+
+      <div class="admin-search">
+        <input type="text" id="coupons-search" placeholder="🔍 ابحث بكود الكوبون..." oninput="filterCoupons()" />
+      </div>
+
+      <div class="admin-table">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>الكود</th>
+              <th>الخصم</th>
+              <th>الحد الأدنى</th>
+              <th>أقصى خصم</th>
+              <th>الاستخدامات</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="admin-coupons-body"></tbody>
+        </table>
+      </div>
+
+      <div class="orders-empty hidden" id="coupons-empty">
+        <div class="empty-icon">🎟️</div>
+        <h3>لا توجد كوبونات بعد</h3>
+        <p>اضغط "إضافة كوبون" عشان تعمل أول كوبون.</p>
       </div>
     </div>
   </div>
@@ -345,6 +394,45 @@
     </div>
   </div>
 
+  <!-- Coupon Modal -->
+  <div class="admin-modal-overlay" id="coupon-modal" onclick="closeCouponModal(event)">
+    <div class="admin-modal" onclick="event.stopPropagation()">
+      <h2 id="coupon-modal-title">إضافة كوبون</h2>
+      <form id="coupon-form" onsubmit="saveCoupon(event)">
+        <label>كود الكوبون (بالإنجليزي، بدون مسافات)</label>
+        <input type="text" id="c-code" placeholder="FORSA10" required style="text-transform: uppercase;" />
+
+        <label>نوع الخصم</label>
+        <select id="c-type" required>
+          <option value="percentage">نسبة مئوية (%)</option>
+          <option value="fixed">مبلغ ثابت (جنيه)</option>
+        </select>
+
+        <label>قيمة الخصم</label>
+        <input type="number" id="c-value" placeholder="10" required />
+
+        <label>الحد الأدنى للطلب (اختياري - 0 = مفيش)</label>
+        <input type="number" id="c-minorder" placeholder="0" value="0" />
+
+        <label>أقصى مبلغ للخصم (للنسبة المئوية فقط - 0 = مفيش)</label>
+        <input type="number" id="c-maxdiscount" placeholder="200" value="0" />
+
+        <label>عدد مرات الاستخدام (اختياري - 0 = غير محدود)</label>
+        <input type="number" id="c-usagelimit" placeholder="0" value="0" />
+
+        <label class="checkbox-label">
+          <input type="checkbox" id="c-active" checked />
+          الكوبون مفعّل
+        </label>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-lime">💾 حفظ</button>
+          <button type="button" class="btn-gray" onclick="closeCouponModal()">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -382,6 +470,7 @@
 
   <script src="admin.js"></script>
   <script src="admin-orders.js"></script>
+  <script src="admin-coupons.js"></script>
   <script src="animations.js"></script>
 </body>
 </html>
