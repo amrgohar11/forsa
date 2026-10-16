@@ -323,22 +323,22 @@ async function fbDeleteCoupon(code) {
 }
 
 // التحقق من كوبون (للعميل)
-async function fbValidateCoupon(code, orderTotal) {
+async function fbValidateCoupon(code, orderTotal, customerPhone) {
   if (!db) return { valid: false, error: "Service unavailable" };
   try {
     const doc = await db.collection("coupons").doc(code.toUpperCase()).get();
-    
+
     if (!doc.exists) {
       return { valid: false, error: "الكود غير موجود" };
     }
-    
+
     const coupon = doc.data();
-    
+
     // التحقق من التفعيل
     if (!coupon.active) {
       return { valid: false, error: "الكود غير مفعّل" };
     }
-    
+
     // التحقق من تاريخ الانتهاء
     if (coupon.expiresAt) {
       const expiryDate = coupon.expiresAt.toDate?.() || new Date(coupon.expiresAt);
@@ -346,20 +346,32 @@ async function fbValidateCoupon(code, orderTotal) {
         return { valid: false, error: "الكود منتهي الصلاحية" };
       }
     }
-    
+
     // التحقق من الحد الأدنى
     if (coupon.minOrder && orderTotal < coupon.minOrder) {
-      return { 
-        valid: false, 
-        error: `الحد الأدنى للطلب ${coupon.minOrder} جنيه` 
+      return {
+        valid: false,
+        error: `الحد الأدنى للطلب ${coupon.minOrder} جنيه`
       };
     }
-    
+
     // التحقق من عدد مرات الاستخدام
     if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
       return { valid: false, error: "تم استنفاد الكود" };
     }
-    
+
+    // ===== التحقق من "أول طلب" =====
+    if (coupon.firstOrderOnly && customerPhone) {
+      const ordersSnapshot = await db.collection("orders")
+        .where("phone", "==", customerPhone)
+        .limit(1)
+        .get();
+
+      if (!ordersSnapshot.empty) {
+        return { valid: false, error: "الكود ده لأول طلب بس 🙏" };
+      }
+    }
+
     // حساب الخصم
     let discount = 0;
     if (coupon.type === "percentage") {
@@ -371,13 +383,13 @@ async function fbValidateCoupon(code, orderTotal) {
       discount = coupon.value;
       if (discount > orderTotal) discount = orderTotal;
     }
-    
+
     return {
       valid: true,
       discount: Math.round(discount),
       coupon: coupon
     };
-    
+
   } catch (e) {
     console.error("Error validating coupon:", e);
     return { valid: false, error: "حصلت مشكلة، جرب تاني" };
@@ -388,9 +400,18 @@ async function fbValidateCoupon(code, orderTotal) {
 async function fbIncrementCouponUsage(code) {
   if (!db) return false;
   try {
-    await db.collection("coupons").doc(code.toUpperCase()).update({
-      usedCount: firebase.firestore.FieldValue.increment(1)
+    const couponRef = db.collection("coupons").doc(code.toUpperCase());
+    const doc = await couponRef.get();
+
+    if (!doc.exists) return false;
+
+    const currentCount = doc.data().usedCount || 0;
+
+    await couponRef.update({
+      usedCount: currentCount + 1
     });
+
+    console.log("✅ Coupon usedCount updated to:", currentCount + 1);
     return true;
   } catch (e) {
     console.error("Error incrementing coupon:", e);
