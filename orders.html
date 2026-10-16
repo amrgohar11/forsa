@@ -6,29 +6,12 @@
   <meta name="theme-color" content="#0A0C10" />
 
   <!-- Primary Meta Tags -->
-  <title>طلباتي | FORSA - تتبع طلباتك</title>
-  <meta name="title" content="طلباتي | FORSA" />
-  <meta name="description" content="تتبع كل طلباتك من FORSA - ادخل رقم الموبايل وشوف حالة طلبك وكل تفاصيله بسهولة." />
-  <meta name="keywords" content="طلباتي, تتبع الطلبات, FORSA, مصر" />
+  <title>تتبع الطلب | FORSA</title>
+  <meta name="title" content="تتبع الطلب | FORSA" />
+  <meta name="description" content="تتبع حالة طلبك على FORSA برقم الطلب. اعرف حالة الشحن والتسليم فوراً." />
   <meta name="author" content="FORSA" />
   <meta name="robots" content="noindex, follow" />
   <link rel="canonical" href="https://forsa-store.vercel.app/orders.html" />
-
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://forsa-store.vercel.app/orders.html" />
-  <meta property="og:title" content="طلباتي | FORSA" />
-  <meta property="og:description" content="تتبع كل طلباتك من FORSA بسهولة." />
-  <meta property="og:image" content="https://forsa-store.vercel.app/assets/logo.png" />
-  <meta property="og:locale" content="ar_EG" />
-  <meta property="og:site_name" content="FORSA" />
-
-  <!-- Twitter -->
-  <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content="https://forsa-store.vercel.app/orders.html" />
-  <meta property="twitter:title" content="طلباتي | FORSA" />
-  <meta property="twitter:description" content="تتبع كل طلباتك من FORSA بسهولة." />
-  <meta property="twitter:image" content="https://forsa-store.vercel.app/assets/logo.png" />
 
   <!-- Favicon & Fonts -->
   <link rel="icon" href="assets/logo.png" />
@@ -62,11 +45,9 @@
   <noscript><img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=2255667811643260&ev=PageView&noscript=1"
   /></noscript>
-  <!-- End Meta Pixel Code -->
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#0A0C10" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="FORSA" />
@@ -78,23 +59,23 @@
     .orders-hero { text-align: center; margin-bottom: 48px; }
     .orders-hero h1 { font-size: clamp(32px, 5vw, 52px); font-weight: 900; margin-bottom: 16px; }
     .orders-hero p { color: var(--gray-light); font-size: 17px; max-width: 500px; margin: 0 auto; }
-    .search-box { max-width: 600px; margin: 0 auto 48px; display: flex; gap: 12px; flex-wrap: wrap; }
-    .search-box input { flex: 1; min-width: 240px; background: var(--black-2); border: 2px solid var(--border); color: var(--white); padding: 16px 20px; border-radius: 14px; font-family: 'Cairo', sans-serif; font-size: 16px; transition: var(--transition); text-align: center; letter-spacing: 1px; }
-    .search-box input:focus { outline: none; border-color: var(--lime); box-shadow: 0 0 0 3px rgba(184, 242, 58, 0.1); }
-    .search-box button { background: linear-gradient(135deg, var(--blue), var(--lime)); color: var(--black); border: none; padding: 16px 32px; border-radius: 14px; font-weight: 800; cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 16px; transition: var(--transition); display: flex; align-items: center; gap: 8px; }
-    .search-box button:hover { transform: translateY(-2px); box-shadow: var(--shadow-lime); }
-    .search-box button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .empty-state { text-align: center; padding: 60px 20px; color: var(--gray); }
-    .empty-state .empty-icon { font-size: 80px; margin-bottom: 20px; opacity: 0.5; }
-    .empty-state h3 { color: var(--white); margin-bottom: 10px; font-size: 22px; }
-    .empty-state p { margin-bottom: 24px; }
+    .orders-page .search-box { max-width: 600px; margin: 0 auto 48px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .orders-page .search-box input { flex: 1; min-width: 240px; background: var(--black-2); border: 2px solid var(--border); color: var(--white); padding: 16px 20px; border-radius: 14px; font-family: 'Cairo', sans-serif; font-size: 18px; transition: var(--transition); text-align: center; letter-spacing: 4px; font-weight: 800; }
+    .orders-page .search-box input:focus { outline: none; border-color: var(--lime); box-shadow: 0 0 0 3px rgba(184, 242, 58, 0.1); }
+    .orders-page .search-box button { background: linear-gradient(135deg, var(--blue), var(--lime)); color: var(--black); border: none; padding: 16px 32px; border-radius: 14px; font-weight: 800; cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 16px; transition: var(--transition); display: flex; align-items: center; gap: 8px; }
+    .orders-page .search-box button:hover { transform: translateY(-2px); box-shadow: var(--shadow-lime); }
+    .orders-page .search-box button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .orders-page .empty-state { text-align: center; padding: 60px 20px; color: var(--gray); }
+    .orders-page .empty-state .empty-icon { font-size: 80px; margin-bottom: 20px; opacity: 0.5; }
+    .orders-page .empty-state h3 { color: var(--white); margin-bottom: 10px; font-size: 22px; }
+    .orders-page .empty-state p { margin-bottom: 24px; }
     .orders-list { display: flex; flex-direction: column; gap: 20px; max-width: 800px; margin: 0 auto; }
     .order-card { background: var(--black-2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; transition: var(--transition); position: relative; overflow: hidden; }
     .order-card::before { content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%; background: linear-gradient(180deg, var(--blue), var(--lime)); }
     .order-card:hover { border-color: var(--lime); transform: translateY(-3px); box-shadow: var(--shadow-lime); }
     .order-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-    .order-id { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 14px; color: var(--gray); letter-spacing: 1px; }
-    .order-date { color: var(--gray); font-size: 13px; }
+    .order-id { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 18px; color: var(--lime); letter-spacing: 1px; }
+    .order-date { color: var(--gray); font-size: 13px; margin-top: 4px; }
     .order-status { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 800; }
     .order-status.new { background: rgba(23, 105, 255, 0.15); color: var(--blue-light); border: 1px solid rgba(23, 105, 255, 0.3); }
     .order-status.shipped { background: rgba(184, 242, 58, 0.15); color: var(--lime); border: 1px solid rgba(184, 242, 58, 0.3); }
@@ -112,21 +93,15 @@
     .order-total-label { color: var(--gray-light); font-size: 14px; }
     .order-total-value { color: var(--lime); font-weight: 900; font-size: 22px; }
     .order-payment { color: var(--gray); font-size: 13px; margin-top: 8px; }
-
-    /* Fix fade-up */
     .fade-up { opacity: 1 !important; transform: none !important; }
   </style>
 </head>
 <body>
 
-  <!-- Scroll Progress Bar -->
   <div class="scroll-progress" id="scroll-progress"></div>
-
-  <!-- Custom Cursor -->
   <div class="custom-cursor" id="custom-cursor"></div>
   <div class="custom-cursor-outline" id="custom-cursor-outline"></div>
 
-  <!-- Luxury Loader -->
   <div class="luxury-loader" id="luxury-loader">
     <img src="assets/logo.png" alt="FORSA" class="luxury-loader-logo" />
     <div class="luxury-loader-text">FORSA</div>
@@ -151,7 +126,6 @@
       <span class="sep">•</span>
       <span>⚡ توصيل سريع خلال 48 ساعة</span>
         <span class="sep">•</span>
-        <!-- نسخة مكررة للـ Loop -->
         <span>🚚 شحن 40 جنيه لكل المحافظات</span>
         <span class="sep">•</span>
         <span>⚡ عروض حصرية كل أسبوع</span>
@@ -180,7 +154,7 @@
       <nav class="nav">
         <a href="index.html">الرئيسية</a>
         <a href="shop.html">كل المنتجات</a>
-        <a href="orders.html">طلباتي</a>
+        <a href="orders.html">تتبع الطلب</a>
         <a href="about.html">عن FORSA</a>
         <a href="faq.html">الأسئلة الشائعة</a>
         <a href="index.html#contact">تواصل</a>
@@ -196,7 +170,7 @@
     <nav class="mobile-nav" id="mobile-nav">
       <a href="index.html">الرئيسية</a>
       <a href="shop.html">كل المنتجات</a>
-      <a href="orders.html">طلباتي</a>
+      <a href="orders.html">تتبع الطلب</a>
       <a href="about.html">عن FORSA</a>
       <a href="faq.html">الأسئلة الشائعة</a>
       <a href="index.html#contact">تواصل</a>
@@ -208,19 +182,32 @@
     <div class="container">
 
       <div class="orders-hero">
-        <span class="section-tag">📦 تتبع طلباتك</span>
-        <h1>طلباتي</h1>
-        <p>ادخل رقم الموبايل اللي طلبت بيه، وهتشوف كل طلباتك وحالتها.</p>
+        <span class="section-tag">📦 تتبع طلبك</span>
+        <h1>تتبع الطلب</h1>
+        <p>ادخل رقم الطلب (6 أرقام)، وهتشوف حالة طلبك وتفاصيله.</p>
       </div>
 
       <div class="search-box">
-        <input type="tel" id="phone-search" placeholder="01xxxxxxxxx" maxlength="11" />
+        <input 
+          type="text" 
+          id="phone-search" 
+          placeholder="604680"
+          maxlength="6"
+          inputmode="numeric"
+          autocomplete="off"
+        />
         <button onclick="searchOrders()" id="search-btn">
-          🔍 اعرض طلباتي
+          🔍 تتبع الطلب
         </button>
       </div>
 
-      <div id="orders-result"></div>
+      <div id="orders-result">
+        <div class="empty-state">
+          <div class="empty-icon">📦</div>
+          <h3>ابدأ التتبع</h3>
+          <p>ادخل رقم الطلب لعرض حالته</p>
+        </div>
+      </div>
 
     </div>
   </section>
@@ -266,7 +253,7 @@
     </a>
     <a href="orders.html" class="bottom-nav-item active">
       <span class="bn-icon">📦</span>
-      طلباتي
+      تتبع
     </a>
     <a href="https://wa.me/201556687455" target="_blank" class="bottom-nav-item">
       <span class="bn-icon">💬</span>

@@ -222,6 +222,41 @@ async function fbGetOrdersByPhone(phone) {
   }
 }
 
+// ✅ جلب طلب واحد برقم الطلب (جديد)
+async function fbGetOrderByNumber(orderNumber) {
+  if (!db) return null;
+  try {
+    const num = parseInt(String(orderNumber).replace(/\D/g, ""));
+    if (isNaN(num)) return null;
+
+    const snapshot = await db.collection("orders")
+      .where("orderNumber", "==", num)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) return null;
+
+    const doc = snapshot.docs[0];
+    return { id: doc.id, ...doc.data() };
+  } catch (e) {
+    console.error("Error getting order by number:", e);
+    return null;
+  }
+}
+
+// ✅ جلب طلب بالـ ID (احتياطي - جديد)
+async function fbGetOrderById(id) {
+  if (!db) return null;
+  try {
+    const doc = await db.collection("orders").doc(id).get();
+    if (!doc.exists) return null;
+    return { id: doc.id, ...doc.data() };
+  } catch (e) {
+    console.error("Error getting order by id:", e);
+    return null;
+  }
+}
+
 // تعديل حالة الطلب
 async function fbUpdateOrderStatus(id, status) {
   if (!db) return false;
@@ -450,7 +485,7 @@ async function fbIncrementCouponUsage(code) {
   }
 }
 
-// ========== BLOG HELPERS (NEW) ==========
+// ========== BLOG HELPERS ==========
 
 // جلب كل المقالات (مع فلترة النشر)
 async function fbGetBlogPosts(includeUnpublished = false) {
@@ -458,7 +493,6 @@ async function fbGetBlogPosts(includeUnpublished = false) {
   try {
     let query = db.collection("blog_posts").orderBy("publishedAt", "desc");
     
-    // لو مش أدمن، اجيب بس المنشور
     if (!includeUnpublished) {
       query = db.collection("blog_posts")
         .where("published", "==", true)
@@ -513,7 +547,6 @@ async function fbGetBlogPostById(id) {
 async function fbAddBlogPost(data) {
   if (!db) return false;
   try {
-    // تأكد إن الـ slug فريد
     const existing = await fbGetBlogPostBySlug(data.slug);
     if (existing) {
       console.warn("⚠️ الـ slug موجود بالفعل:", data.slug);
@@ -548,7 +581,6 @@ async function fbUpdateBlogPost(id, data) {
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
-    // لو المقال اتنشر لأول مرة، حدّث publishedAt
     if (data.published) {
       const doc = await db.collection("blog_posts").doc(id).get();
       const currentData = doc.data();

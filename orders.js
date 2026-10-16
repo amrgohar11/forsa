@@ -1,16 +1,25 @@
-// ========== ORDERS PAGE ==========
+// ========== ORDERS PAGE — بحث برقم الطلب ==========
 const WHATSAPP_NUMBER = "201556687455";
 
-// ========== SEARCH ORDERS ==========
+// ========== SEARCH ORDER BY NUMBER ==========
 async function searchOrders() {
-  const phoneInput = document.getElementById("phone-search");
-  const phone = phoneInput.value.trim();
-  const resultEl = document.getElementById("orders-result");
+  const input = document.getElementById("phone-search");
   const btn = document.getElementById("search-btn");
+  const resultEl = document.getElementById("orders-result");
 
-  // تحقق من الرقم
-  if (!phone || phone.length < 11) {
-    showEmptyState("⚠️ اكتب رقم موبايل صحيح (11 رقم)");
+  if (!input || !resultEl) return;
+
+  const query = input.value.trim();
+
+  // تحقق: فاضي
+  if (!query) {
+    showEmptyState("⚠️ اكتب رقم الطلب");
+    return;
+  }
+
+  // تحقق: 6 أرقام بالظبط
+  if (!/^\d{6}$/.test(query)) {
+    showEmptyState("⚠️ رقم الطلب لازم يكون 6 أرقام");
     return;
   }
 
@@ -21,50 +30,73 @@ async function searchOrders() {
   }
 
   // تحميل
-  btn.disabled = true;
-  btn.innerHTML = "⏳ جاري البحث...";
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = "⏳ جاري البحث...";
+  }
+
   resultEl.innerHTML = `
     <div class="empty-state">
-      <div class="empty-icon">⏳</div>
-      <h3>جاري البحث...</h3>
+      <div class="loader-inner" style="margin: 0 auto 16px;"></div>
+      <h3>جاري البحث عن الطلب...</h3>
     </div>
   `;
 
   try {
-    // جلب الطلبات من Firebase
-    const orders = await fbGetOrdersByPhone(phone) || [];
+    let order = null;
 
-    if (orders.length === 0) {
-      showEmptyState("📭 مفيش طلبات بالرقم ده");
+    // ===== جرب fbGetOrderByNumber أولاً =====
+    if (typeof fbGetOrderByNumber === "function") {
+      order = await fbGetOrderByNumber(query);
+    }
+
+    // ===== لو مش لاقي، جرب fbGetOrderById =====
+    if (!order && typeof fbGetOrderById === "function") {
+      order = await fbGetOrderById(query);
+    }
+
+    // ===== لو مش لاقي، جرب firestore مباشرة =====
+    if (!order) {
+      const db = firebase.firestore();
+      const orderNum = parseInt(query);
+
+      const snapshot = await db.collection("orders")
+        .where("orderNumber", "==", orderNum)
+        .limit(1)
+        .get();
+
+      if (!snapshot.empty) {
+        const doc = snapshot.docs[0];
+        order = { id: doc.id, ...doc.data() };
+      }
+    }
+
+    // ===== لو مش لاقي نهائي =====
+    if (!order) {
+      showEmptyState("📭 مفيش طلب بالرقم ده");
       return;
     }
 
-    // ترتيب حسب التاريخ (الأحدث الأول)
-    orders.sort((a, b) => {
-      const dateA = a.createdAt?.toDate?.() || 0;
-      const dateB = b.createdAt?.toDate?.() || 0;
-      return dateB - dateA;
-    });
-
-    renderOrders(orders);
+    // ===== اعرض الطلب =====
+    renderOrders([order]);
 
   } catch (err) {
-    console.error(err);
+    console.error("Error searching order:", err);
     showEmptyState("❌ حصلت مشكلة، جرب تاني");
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = "🔍 اعرض طلباتي";
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = "🔍 تتبع الطلب";
+    }
   }
 }
 
 // ========== RENDER ORDERS ==========
 function renderOrders(orders) {
   const resultEl = document.getElementById("orders-result");
+  if (!resultEl) return;
 
   const html = `
-    <div style="text-align:center; margin-bottom:24px; color: var(--gray);">
-      <span style="color:var(--lime); font-weight:900; font-size:20px;">${orders.length}</span> طلب
-    </div>
     <div class="orders-list">
       ${orders.map((order, index) => renderOrderCard(order, index)).join("")}
     </div>
@@ -72,7 +104,6 @@ function renderOrders(orders) {
 
   resultEl.innerHTML = html;
 
-  // تشغيل fade-up للعناصر الجديدة
   setTimeout(() => {
     resultEl.querySelectorAll(".order-card").forEach((el, i) => {
       setTimeout(() => el.classList.add("visible"), i * 100);
@@ -96,7 +127,9 @@ function renderOrderCard(order, index) {
   const itemsHtml = (order.items || []).map(item => `
     <div class="order-item">
       <div class="order-item-img">
-        ${item.image ? `<img src="${item.image}" alt="${item.name}" />` : (item.icon || "📦")}
+        ${item.image
+          ? `<img src="${item.image}" alt="${item.name}" onerror="this.parentElement.innerHTML='${item.icon || '📦'}'" />`
+          : (item.icon || "📦")}
       </div>
       <div class="order-item-info">
         <h4>${item.name}</h4>
@@ -106,11 +139,13 @@ function renderOrderCard(order, index) {
     </div>
   `).join("");
 
+  const orderNum = order.orderNumber || order.id.slice(-6);
+
   return `
     <div class="order-card fade-up">
       <div class="order-card-header">
         <div>
-          <div class="order-id">طلب #${String(index + 1).padStart(3, "0")}</div>
+          <div class="order-id">#${orderNum}</div>
           <div class="order-date">📅 ${date}</div>
         </div>
         <span class="order-status ${statusClass}">${order.status || "جديد"}</span>
@@ -127,6 +162,12 @@ function renderOrderCard(order, index) {
       <div class="order-payment">
         💳 ${order.paymentMethod || "-"}
       </div>
+
+      <div style="margin-top:16px;">
+        <a href="track.html?id=${orderNum}" class="btn-secondary" style="width:100%; display:block; text-align:center; padding:12px; text-decoration:none;">
+          📍 تتبع الطلب مباشرة
+        </a>
+      </div>
     </div>
   `;
 }
@@ -134,25 +175,40 @@ function renderOrderCard(order, index) {
 // ========== EMPTY STATE ==========
 function showEmptyState(message) {
   const resultEl = document.getElementById("orders-result");
+  if (!resultEl) return;
   resultEl.innerHTML = `
     <div class="empty-state">
       <div class="empty-icon">📭</div>
       <h3>${message}</h3>
       <p>لو عندك أي استفسار، كلمنا على واتساب.</p>
-      <a href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank" class="btn-primary" style="display:inline-flex;">
+      <a href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank" class="btn-primary" style="display:inline-flex; margin-top:16px;">
         💬 تواصل معانا
       </a>
     </div>
   `;
 }
 
-// ========== ENTER KEY ==========
+// ========== AUTO-LOAD FROM URL + ENTER KEY ==========
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("phone-search");
-  if (input) {
-    input.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") searchOrders();
-    });
+
+  if (!input) return;
+
+  // Enter key
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      searchOrders();
+    }
+  });
+
+  // Auto-load من URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const orderParam = urlParams.get("id") || urlParams.get("order");
+
+  if (orderParam) {
+    input.value = orderParam;
+    searchOrders();
   }
 });
 
