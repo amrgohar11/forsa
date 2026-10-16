@@ -232,6 +232,10 @@
         <button class="btn-lime" onclick="openCategoryModal()">➕ إضافة قسم</button>
         <button class="btn-blue" onclick="loadCategories()">🔄 تحديث الأقسام</button>
       </div>
+      <div class="admin-actions hidden" id="blog-actions">
+        <button class="btn-lime" onclick="openBlogModal()">➕ إضافة مقال</button>
+        <button class="btn-blue" onclick="loadBlogPosts()">🔄 تحديث المقالات</button>
+      </div>
     </div>
 
     <!-- Tabs -->
@@ -240,6 +244,7 @@
       <button class="admin-tab-btn" onclick="switchAdminTab('orders')" id="tab-orders">🛒 الطلبات</button>
       <button class="admin-tab-btn" onclick="switchAdminTab('coupons')" id="tab-coupons">🎟️ الكوبونات</button>
       <button class="admin-tab-btn" onclick="switchAdminTab('categories')" id="tab-categories">📂 الأقسام</button>
+      <button class="admin-tab-btn" onclick="switchAdminTab('blog')" id="tab-blog">📝 المدونة</button>
     </div>
 
     <!-- Products Section -->
@@ -346,7 +351,7 @@
       </div>
     </div>
 
-    <!-- Categories Section (NEW) -->
+    <!-- Categories Section -->
     <div id="section-categories" class="hidden">
       <div class="admin-stats">
         <div class="stat-card"><strong id="stat-categories-total">0</strong><span>إجمالي الأقسام</span></div>
@@ -370,6 +375,37 @@
             </tr>
           </thead>
           <tbody id="admin-categories-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Blog Section (NEW) -->
+    <div id="section-blog" class="hidden">
+      <div class="admin-stats">
+        <div class="stat-card"><strong id="stat-blog-total">0</strong><span>إجمالي المقالات</span></div>
+        <div class="stat-card"><strong id="stat-blog-published">0</strong><span>مقالات منشورة</span></div>
+        <div class="stat-card"><strong id="stat-blog-views">0</strong><span>إجمالي المشاهدات</span></div>
+      </div>
+
+      <div class="admin-search">
+        <input type="text" id="blog-search" placeholder="🔍 ابحث بعنوان المقال أو الـ slug..." oninput="filterBlogPosts()" />
+      </div>
+
+      <div class="admin-table">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>الصورة</th>
+              <th>العنوان</th>
+              <th>التصنيف</th>
+              <th>التاريخ</th>
+              <th>المشاهدات</th>
+              <th>الحالة</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="admin-blog-body"></tbody>
         </table>
       </div>
     </div>
@@ -492,7 +528,7 @@
     </div>
   </div>
 
-  <!-- Category Modal (NEW) -->
+  <!-- Category Modal -->
   <div class="admin-modal-overlay" id="category-modal" onclick="closeCategoryModal(event)">
     <div class="admin-modal" onclick="event.stopPropagation()">
       <h2 id="category-modal-title">إضافة قسم</h2>
@@ -530,6 +566,73 @@
         <div class="modal-actions">
           <button type="submit" class="btn-lime">💾 حفظ</button>
           <button type="button" class="btn-gray" onclick="closeCategoryModal(null, true)">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Blog Modal (NEW) -->
+  <div class="admin-modal-overlay" id="blog-modal" onclick="closeBlogModal(event)">
+    <div class="admin-modal" onclick="event.stopPropagation()">
+      <h2 id="blog-modal-title">إضافة مقال</h2>
+      <form id="blog-form" onsubmit="saveBlogPost(event)">
+        <input type="hidden" id="blog-id" />
+
+        <label>عنوان المقال</label>
+        <input type="text" id="blog-title" placeholder="إزاي تختار الإيربودز المناسب؟" required onblur="autoGenerateSlug()" />
+
+        <label>الرابط (Slug) — بالإنجليزي</label>
+        <input type="text" id="blog-slug" placeholder="how-to-choose-earbuds" required pattern="[a-z0-9-]+" style="text-transform: lowercase;" />
+        <small class="field-hint">💡 الرابط في المتصفح هيبقى: <code>blog-post.html?slug=<strong>your-slug</strong></code></small>
+
+        <label>رابط صورة الغلاف</label>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <input type="text" id="blog-cover" placeholder="https://files.catbox.moe/xxxxx.png" style="flex:1;" oninput="previewBlogCover()" />
+          <div id="blog-cover-preview" style="width:90px; height:70px; display:flex; align-items:center; justify-content:center; background:var(--black); border:1px solid var(--border); border-radius:10px; flex-shrink:0;">
+            <span style="font-size:32px;">📄</span>
+          </div>
+        </div>
+
+        <label>التصنيف</label>
+        <select id="blog-category" required>
+          <option value="نصائح">نصائح</option>
+          <option value="مراجعات">مراجعات</option>
+          <option value="أخبار">أخبار</option>
+          <option value="مقارنات">مقارنات</option>
+          <option value="أدلة شراء">أدلة شراء</option>
+        </select>
+
+        <label>وصف قصير (Excerpt) — للـ SEO</label>
+        <textarea id="blog-excerpt" placeholder="5 نصائح مهمة لاختيار الإيربودز المناسب..." maxlength="200" required></textarea>
+
+        <label>المحتوى الكامل</label>
+        <textarea id="blog-content" placeholder="اكتب المحتوى هنا...
+
+يمكنك استخدام:
+- # عنوان رئيسي
+- ## عنوان فرعي
+- **نص عريض**
+- *نص مائل*
+- [رابط](https://...)
+- - نقطة
+- 1. نقطة مرقمة" style="min-height:200px;" required></textarea>
+        <small class="field-hint">💡 محرر بسيط يدعم Markdown</small>
+
+        <label>الوسوم (بينهم فاصلة)</label>
+        <input type="text" id="blog-tags" placeholder="إيربودز, نصائح شراء, إكسسوارات" />
+
+        <label>معرفات منتجات ذات صلة (اختياري — بينهم فاصلة)</label>
+        <input type="text" id="blog-related" placeholder="1, 5, 12" />
+        <small class="field-hint">💡 حط IDs المنتجات اللي عايز تعرضها في نهاية المقال</small>
+
+        <label class="checkbox-label">
+          <input type="checkbox" id="blog-published" />
+          📤 نشر المقال مباشرة
+        </label>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-lime">💾 حفظ</button>
+          <button type="button" class="btn-gray" onclick="closeBlogModal(null, true)">إلغاء</button>
         </div>
       </form>
     </div>
@@ -574,6 +677,7 @@
   <script src="admin-orders.js"></script>
   <script src="admin-coupons.js"></script>
   <script src="admin-categories.js"></script>
+  <script src="admin-blog.js"></script>
   <script src="animations.js"></script>
 </body>
 </html>

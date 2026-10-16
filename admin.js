@@ -423,7 +423,8 @@ function switchAdminTab(tab) {
     products: "إدارة المنتجات",
     orders: "إدارة الطلبات",
     coupons: "إدارة الكوبونات",
-    categories: "إدارة الأقسام"
+    categories: "إدارة الأقسام",
+    blog: "إدارة المدونة"
   };
   if (pageTitle && titles[tab]) pageTitle.textContent = titles[tab];
 
@@ -434,6 +435,8 @@ function switchAdminTab(tab) {
     loadCoupons();
   } else if (tab === "categories" && typeof loadCategories === "function") {
     loadCategories();
+  } else if (tab === "blog" && typeof loadBlogPosts === "function") {
+    loadBlogPosts();
   }
 }
 

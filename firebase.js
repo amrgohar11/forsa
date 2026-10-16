@@ -101,7 +101,7 @@ async function fbDeleteProduct(id) {
   }
 }
 
-// ========== CATEGORIES HELPERS (NEW) ==========
+// ========== CATEGORIES HELPERS ==========
 
 // إضافة قسم جديد
 async function fbAddCategory(id, category) {
@@ -369,12 +369,10 @@ async function fbValidateCoupon(code, orderTotal, customerPhone) {
 
     const coupon = doc.data();
 
-    // التحقق من التفعيل
     if (!coupon.active) {
       return { valid: false, error: "الكود غير مفعّل" };
     }
 
-    // التحقق من تاريخ الانتهاء
     if (coupon.expiresAt) {
       const expiryDate = coupon.expiresAt.toDate?.() || new Date(coupon.expiresAt);
       if (new Date() > expiryDate) {
@@ -382,7 +380,6 @@ async function fbValidateCoupon(code, orderTotal, customerPhone) {
       }
     }
 
-    // التحقق من الحد الأدنى
     if (coupon.minOrder && orderTotal < coupon.minOrder) {
       return {
         valid: false,
@@ -390,7 +387,6 @@ async function fbValidateCoupon(code, orderTotal, customerPhone) {
       };
     }
 
-    // التحقق من عدد مرات الاستخدام
     if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
       return { valid: false, error: "تم استنفاد الكود" };
     }
@@ -450,6 +446,149 @@ async function fbIncrementCouponUsage(code) {
     return true;
   } catch (e) {
     console.error("Error incrementing coupon:", e);
+    return false;
+  }
+}
+
+// ========== BLOG HELPERS (NEW) ==========
+
+// جلب كل المقالات (مع فلترة النشر)
+async function fbGetBlogPosts(includeUnpublished = false) {
+  if (!db) return null;
+  try {
+    let query = db.collection("blog_posts").orderBy("publishedAt", "desc");
+    
+    // لو مش أدمن، اجيب بس المنشور
+    if (!includeUnpublished) {
+      query = db.collection("blog_posts")
+        .where("published", "==", true)
+        .orderBy("publishedAt", "desc");
+    }
+    
+    const snapshot = await query.get();
+    const posts = [];
+    snapshot.forEach(doc => {
+      posts.push({ id: doc.id, ...doc.data() });
+    });
+    return posts;
+  } catch (e) {
+    console.error("Error getting blog posts:", e);
+    return null;
+  }
+}
+
+// جلب مقال واحد بالـ slug
+async function fbGetBlogPostBySlug(slug) {
+  if (!db) return null;
+  try {
+    const snapshot = await db.collection("blog_posts")
+      .where("slug", "==", slug)
+      .limit(1)
+      .get();
+    
+    if (snapshot.empty) return null;
+    
+    const doc = snapshot.docs[0];
+    return { id: doc.id, ...doc.data() };
+  } catch (e) {
+    console.error("Error getting blog post:", e);
+    return null;
+  }
+}
+
+// جلب مقال واحد بالـ ID
+async function fbGetBlogPostById(id) {
+  if (!db) return null;
+  try {
+    const doc = await db.collection("blog_posts").doc(id).get();
+    if (!doc.exists) return null;
+    return { id: doc.id, ...doc.data() };
+  } catch (e) {
+    console.error("Error getting blog post:", e);
+    return null;
+  }
+}
+
+// إضافة مقال جديد
+async function fbAddBlogPost(data) {
+  if (!db) return false;
+  try {
+    // تأكد إن الـ slug فريد
+    const existing = await fbGetBlogPostBySlug(data.slug);
+    if (existing) {
+      console.warn("⚠️ الـ slug موجود بالفعل:", data.slug);
+      return { error: "الـ slug موجود بالفعل، اختر واحد تاني" };
+    }
+    
+    const post = {
+      ...data,
+      views: 0,
+      publishedAt: data.published 
+        ? firebase.firestore.FieldValue.serverTimestamp() 
+        : null,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    const docRef = await db.collection("blog_posts").add(post);
+    console.log("✅ تم إضافة المقال:", docRef.id);
+    return docRef.id;
+  } catch (e) {
+    console.error("Error adding blog post:", e);
+    return false;
+  }
+}
+
+// تعديل مقال
+async function fbUpdateBlogPost(id, data) {
+  if (!db) return false;
+  try {
+    const updateData = {
+      ...data,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    // لو المقال اتنشر لأول مرة، حدّث publishedAt
+    if (data.published) {
+      const doc = await db.collection("blog_posts").doc(id).get();
+      const currentData = doc.data();
+      if (!currentData.publishedAt) {
+        updateData.publishedAt = firebase.firestore.FieldValue.serverTimestamp();
+      }
+    }
+    
+    await db.collection("blog_posts").doc(id).update(updateData);
+    console.log("✅ تم تعديل المقال:", id);
+    return true;
+  } catch (e) {
+    console.error("Error updating blog post:", e);
+    return false;
+  }
+}
+
+// حذف مقال
+async function fbDeleteBlogPost(id) {
+  if (!db) return false;
+  try {
+    await db.collection("blog_posts").doc(id).delete();
+    console.log("✅ تم حذف المقال:", id);
+    return true;
+  } catch (e) {
+    console.error("Error deleting blog post:", e);
+    return false;
+  }
+}
+
+// زيادة عدد المشاهدات
+async function fbIncrementBlogPostViews(id) {
+  if (!db) return false;
+  try {
+    await db.collection("blog_posts").doc(id).update({
+      views: firebase.firestore.FieldValue.increment(1)
+    });
+    return true;
+  } catch (e) {
+    console.error("Error incrementing views:", e);
     return false;
   }
 }
