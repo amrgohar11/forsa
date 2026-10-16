@@ -864,23 +864,12 @@ section { padding: 80px 0; }
 }
 
 /* ============================================
-   MOBILE UX IMPROVEMENTS (NEW)
+   MOBILE UX IMPROVEMENTS
    ============================================ */
 
 @media (max-width: 768px) {
-  /* ===== Touch-friendly buttons ===== */
-  .add-btn, .order-now-btn, .btn-primary, .btn-secondary, .icon-btn {
-    min-height: 48px;
-    font-size: 15px;
-  }
-
-  .nav a, .mobile-nav a {
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-  }
-
-  /* ===== Disable heavy hover effects ===== */
+  .add-btn, .order-now-btn, .btn-primary, .btn-secondary, .icon-btn { min-height: 48px; font-size: 15px; }
+  .nav a, .mobile-nav a { min-height: 44px; display: flex; align-items: center; }
   .product-card { transform: none !important; transition: none; }
   .product-card:hover { transform: none !important; box-shadow: none !important; }
   .product-card::after { display: none; }
@@ -889,51 +878,28 @@ section { padding: 80px 0; }
   .blog-card:hover { transform: none !important; }
   .blog-card:hover .blog-card-img img { transform: none !important; }
   .cat-card:hover { transform: none !important; }
-
-  /* ===== Prevent zoom on input focus (iOS) ===== */
   input, select, textarea, button { font-size: 16px !important; }
-
-  /* ===== Better cart on mobile ===== */
   .cart { width: 100vw; }
-
-  /* ===== Bottom nav more spacious ===== */
   .bottom-nav { padding: 10px 8px calc(10px + env(safe-area-inset-bottom)); }
   .bottom-nav-item { padding: 8px 12px; min-width: 60px; }
-
-  /* ===== Checkout modal full height ===== */
   .modal { max-height: 95vh; padding: 24px 20px; margin: 10px; }
-
-  /* ===== Better touch feedback ===== */
   .add-btn:active, .order-now-btn:active, .btn-primary:active { transform: scale(0.97); }
-
-  /* ===== WhatsApp float better position ===== */
   .whatsapp-float { width: 56px; height: 56px; bottom: 95px; left: 18px; }
-
-  /* ===== Better filter bars ===== */
   .shop-toolbar, .blog-toolbar { flex-direction: column; gap: 12px; }
   .shop-search, .blog-search { width: 100%; }
   .shop-filters, .blog-filters { width: 100%; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .shop-filters::-webkit-scrollbar, .blog-filters::-webkit-scrollbar { display: none; }
   .shop-filters select, .blog-filters select { flex-shrink: 0; min-width: 140px; }
-
-  /* ===== Smooth momentum scrolling ===== */
   .cart-items, .modal, .search-modal-results, .carousel { -webkit-overflow-scrolling: touch; }
-
-  /* ===== Better performance: disable backdrop-filter (heavy on mobile) ===== */
   .header { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(10, 12, 16, 0.98); }
   .bottom-nav { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(10, 12, 16, 0.99); }
-
-  /* ===== Disable glow animations on mobile (CPU heavy) ===== */
   .glow { display: none; }
   .hero-logo { animation: float 6s ease-in-out infinite; filter: none; }
-
-  /* ===== Disable heavy animations ===== */
   .topbar-track { animation-duration: 80s; }
   .luxury-loader-logo { animation: none; }
   .luxury-loader-bar::after { animation: none; }
 }
 
-/* ===== Extra small phones ===== */
 @media (max-width: 380px) {
   .product-info h3 { font-size: 15px; }
   .price-current { font-size: 18px; }
@@ -942,7 +908,6 @@ section { padding: 80px 0; }
   .container { padding: 0 14px; }
 }
 
-/* ===== Reduce motion for accessibility ===== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -951,11 +916,72 @@ section { padding: 80px 0; }
   }
 }
 
-/* ===== Reduce motion for performance on mobile ===== */
 @media (max-width: 768px) {
   .fade-up { opacity: 1 !important; transform: none !important; }
   .hero-logo { animation: none; }
   .glow-on-hover::before { display: none; }
   .tilt-card { transform: none !important; }
   .magnetic-btn { transform: none !important; }
+}
+
+/* ============================================
+   PWA - Install Button (NEW)
+   ============================================ */
+
+.pwa-install-btn {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: linear-gradient(135deg, var(--blue), var(--lime));
+  color: var(--black);
+  border: none;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 40px rgba(184, 242, 58, 0.4);
+  z-index: 500;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.pwa-install-btn.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.pwa-install-btn:hover {
+  transform: translateX(-50%) translateY(-3px);
+  box-shadow: 0 15px 50px rgba(184, 242, 58, 0.5);
+}
+
+.pwa-install-btn:active {
+  transform: translateX(-50%) translateY(0) scale(0.97);
+}
+
+@media (max-width: 768px) {
+  .pwa-install-btn {
+    bottom: 100px;
+    font-size: 14px;
+    padding: 12px 22px;
+  }
+}
+
+body.pwa-standalone .pwa-install-btn {
+  display: none !important;
+}
+
+body.pwa-standalone .bottom-nav {
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+body.pwa-standalone .whatsapp-float {
+  bottom: 100px;
 }
