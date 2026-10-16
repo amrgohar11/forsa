@@ -4,6 +4,7 @@ const SHIPPING = 40;
 const STORAGE_KEY = "forsa_products";
 const FAV_KEY = "forsa_favorites";
 const CART_KEY = "forsa_cart";
+const PHONE_KEY = "forsa_last_phone";
 
 // ========== PAYMENT NUMBERS ==========
 const PAYMENT_INFO = {
@@ -11,7 +12,7 @@ const PAYMENT_INFO = {
   vodafone: "01061863235"
 };
 
-// ========== COUPON STATE (لازم يكون فوق) ==========
+// ========== COUPON STATE ==========
 let appliedCoupon = null;
 
 let allData = { categories: [], products: [] };
@@ -268,6 +269,7 @@ function removeFromCart(id) {
   updateCart();
 }
 
+// ========== UPDATE CART (بسيط — بدون خصم) ==========
 function updateCart() {
   const cartItems = document.getElementById("cart-items");
   const cartCount = document.getElementById("cart-count");
@@ -300,20 +302,8 @@ function updateCart() {
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   if (subtotalEl) subtotalEl.textContent = subtotal;
 
-  // ===== Coupon Discount =====
-  let discount = 0;
-  const discountRow = document.getElementById("cart-discount-row");
-  const discountEl = document.getElementById("cart-discount");
-
-  if (appliedCoupon && appliedCoupon.discount > 0) {
-    discount = appliedCoupon.discount;
-    if (discountRow) discountRow.style.display = "flex";
-    if (discountEl) discountEl.textContent = `-${discount} جنيه`;
-  } else {
-    if (discountRow) discountRow.style.display = "none";
-  }
-
-  const finalTotal = Math.max(0, subtotal + SHIPPING - discount);
+  // السلة بقت بتعرض الإجمالي بدون خصم — الخصم هيظهر في الـ Checkout
+  const finalTotal = subtotal + SHIPPING;
   if (totalEl) totalEl.textContent = finalTotal;
 
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
@@ -335,6 +325,19 @@ function openCheckout() {
   if (modal) modal.classList.add("active");
   document.body.style.overflow = "hidden";
 
+  // ===== املأ رقم الموبايل المحفوظ =====
+  const phoneInput = document.getElementById("phone");
+  const savedPhone = localStorage.getItem(PHONE_KEY);
+  if (phoneInput && !phoneInput.value && savedPhone) {
+    phoneInput.value = savedPhone;
+  }
+
+  // ===== زوّد ملخص الطلب بالأسعار (يظهر جوه الـ modal) =====
+  updateCheckoutSummary();
+
+  // ===== reset UI الكوبون =====
+  resetCouponUI();
+
   if (typeof fbq !== "undefined") {
     const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
     const numItems = cart.reduce((s, i) => s + i.qty, 0);
@@ -351,6 +354,51 @@ function closeCheckout(e, force = false) {
     const modal = document.getElementById("modal-overlay");
     if (modal) modal.classList.remove("active");
     document.body.style.overflow = "";
+  }
+}
+
+// ========== CHECKOUT SUMMARY (يعرض الإجمالي والخصم جوه الـ modal) ==========
+function updateCheckoutSummary() {
+  const subtotalEl = document.getElementById("checkout-subtotal");
+  const shippingEl = document.getElementById("checkout-shipping");
+  const discountRowEl = document.getElementById("checkout-discount-row");
+  const discountEl = document.getElementById("checkout-discount");
+  const totalEl = document.getElementById("checkout-total");
+
+  const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const discount = (appliedCoupon && appliedCoupon.discount > 0) ? appliedCoupon.discount : 0;
+  const total = Math.max(0, subtotal + SHIPPING - discount);
+
+  if (subtotalEl) subtotalEl.textContent = subtotal + " جنيه";
+  if (shippingEl) shippingEl.textContent = SHIPPING + " جنيه";
+
+  if (discountRowEl) {
+    if (discount > 0) {
+      discountRowEl.style.display = "flex";
+      if (discountEl) discountEl.textContent = "-" + discount + " جنيه";
+    } else {
+      discountRowEl.style.display = "none";
+    }
+  }
+
+  if (totalEl) totalEl.textContent = total + " جنيه";
+}
+
+// ========== RESET COUPON UI ==========
+function resetCouponUI() {
+  const inputWrap = document.getElementById("coupon-input-wrap");
+  const appliedEl = document.getElementById("coupon-applied");
+  const messageEl = document.getElementById("coupon-message");
+  const input = document.getElementById("coupon-input");
+
+  if (appliedCoupon) {
+    // فيه كوبون مطبق بالفعل — وريه في الـ modal
+    showAppliedCoupon();
+  } else {
+    if (inputWrap) inputWrap.style.display = "flex";
+    if (appliedEl) appliedEl.style.display = "none";
+    if (messageEl) messageEl.innerHTML = "";
+    if (input) input.value = "";
   }
 }
 
@@ -404,7 +452,9 @@ async function saveOrderToFirebase(orderData) {
 
   if (orderId) {
     console.log("✅ تم حفظ الطلب في Firebase برقم:", orderId);
-    sendAdminNotification(orderData);
+    if (typeof sendAdminNotification === "function") {
+      sendAdminNotification(orderData);
+    }
     return orderId;
   } else {
     console.warn("⚠️ فشل حفظ الطلب في Firebase");
@@ -428,6 +478,11 @@ async function sendWhatsApp(e) {
     instapay: "⚡ انستاباي",
     vodafone: "📱 فودافون كاش"
   };
+
+  // ===== احفظ رقم الموبايل للاستخدام لاحقاً =====
+  if (phone && phone.trim()) {
+    localStorage.setItem(PHONE_KEY, phone.trim());
+  }
 
   let subtotal = 0;
   cart.forEach(item => {
@@ -462,6 +517,7 @@ async function sendWhatsApp(e) {
   }
 
   // ===== حفظ الطلب =====
+  const savedCoupon = appliedCoupon;
   await saveOrderToFirebase({
     name, phone, address, city, notes, payment,
     items: orderItems,
@@ -469,13 +525,18 @@ async function sendWhatsApp(e) {
     shipping: SHIPPING,
     total,
     discount: discount,
-    couponCode: appliedCoupon ? appliedCoupon.code : null,
+    couponCode: savedCoupon ? savedCoupon.code : null,
     paymentMethod: paymentNames[payment]
   });
 
   // ===== زوّد عدّاد الكوبون =====
-  if (appliedCoupon && typeof fbIncrementCouponUsage === "function") {
-    await fbIncrementCouponUsage(appliedCoupon.code);
+  if (savedCoupon && typeof fbIncrementCouponUsage === "function") {
+    try {
+      await fbIncrementCouponUsage(savedCoupon.code);
+      console.log("✅ تم زيادة عدّاد الكوبون:", savedCoupon.code);
+    } catch (err) {
+      console.error("❌ فشل زيادة عدّاد الكوبون:", err);
+    }
   }
 
   document.getElementById("checkout-form").reset();
@@ -496,7 +557,11 @@ async function sendWhatsApp(e) {
     orderNumber: orderNumber,
     createdAt: Date.now(),
     items: orderItems,
+    subtotal: subtotal,
     shipping: SHIPPING,
+    discount: discount,
+    total: total,
+    couponCode: savedCoupon ? savedCoupon.code : null,
     name: name,
     phone: phone,
     address: address,
@@ -633,6 +698,16 @@ async function applyCoupon() {
     return;
   }
 
+  // ===== احصل على رقم الموبايل من الـ Checkout =====
+  const phoneInput = document.getElementById("phone");
+  const customerPhone = (phoneInput && phoneInput.value.trim()) || "";
+
+  if (!customerPhone) {
+    showCouponMessage("⚠️ اكتب رقم الموبايل الأول (فوق)", "error");
+    if (phoneInput) phoneInput.focus();
+    return;
+  }
+
   if (btn) {
     btn.disabled = true;
     btn.textContent = "⏳";
@@ -648,9 +723,9 @@ async function applyCoupon() {
       return;
     }
 
-    const phoneInput = document.getElementById("phone");
-const customerPhone = phoneInput ? phoneInput.value.trim() : "";
-const result = await fbValidateCoupon(code, subtotal, customerPhone);
+    console.log("🎟️ تطبيق كوبون:", code, "| رقم العميل:", customerPhone);
+
+    const result = await fbValidateCoupon(code, subtotal, customerPhone);
 
     if (!result.valid) {
       showCouponMessage("❌ " + result.error, "error");
@@ -665,7 +740,7 @@ const result = await fbValidateCoupon(code, subtotal, customerPhone);
 
     showCouponMessage(`✅ تم تطبيق كود ${code} — وفّرت ${result.discount} جنيه!`, "success");
     showAppliedCoupon();
-    updateCart();
+    updateCheckoutSummary(); // ← تحديث ملخص الطلب في الـ Checkout
     localStorage.setItem("forsa_coupon", JSON.stringify(appliedCoupon));
 
   } catch (e) {
@@ -695,7 +770,7 @@ function removeCoupon() {
   const input = document.getElementById("coupon-input");
   if (input) input.value = "";
 
-  updateCart();
+  updateCheckoutSummary(); // ← تحديث ملخص الطلب
 
   if (typeof showToast === "function") {
     showToast("🎟️ تم إزالة الكوبون");
@@ -720,7 +795,7 @@ function showAppliedCoupon() {
   if (codeEl) codeEl.textContent = appliedCoupon.code;
   if (discountEl) discountEl.textContent = `-${appliedCoupon.discount} جنيه`;
 
-  appliedEl.style.display = "block";
+  appliedEl.style.display = "flex";
   if (inputWrap) inputWrap.style.display = "none";
   if (messageEl) messageEl.innerHTML = "";
 }

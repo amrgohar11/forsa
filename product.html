@@ -254,31 +254,7 @@
     </div>
     <div class="cart-items" id="cart-items"></div>
     <div class="cart-footer">
-      <!-- ===== Coupon Section ===== -->
-      <div class="coupon-section">
-        <label class="coupon-label">🎟️ عندك كود خصم؟</label>
-        <div class="coupon-input-wrap" id="coupon-input-wrap">
-          <input type="text" id="coupon-input" class="coupon-input" placeholder="FORSA10" maxlength="20" />
-          <button class="coupon-apply-btn" id="coupon-apply-btn" onclick="applyCoupon()">تطبيق</button>
-        </div>
-        <div id="coupon-message"></div>
-        <div id="coupon-applied" style="display:none;">
-          <div class="coupon-applied">
-            <div class="coupon-applied-info">
-              <span class="coupon-applied-icon">🎟️</span>
-              <div>
-                <div class="coupon-applied-code" id="coupon-applied-code">FORSA10</div>
-                <div class="coupon-applied-discount" id="coupon-applied-discount">-0 جنيه</div>
-              </div>
-            </div>
-            <button class="coupon-remove-btn" onclick="removeCoupon()">إزالة</button>
-          </div>
-        </div>
-      </div>
-      <!-- ===== End Coupon Section ===== -->
-
       <div class="cart-row"><span>الإجمالي:</span><span id="cart-subtotal">0</span></div>
-      <div class="cart-row" id="cart-discount-row" style="display:none;"><span>🎟️ الخصم:</span><span id="cart-discount" style="color: #4CAF50;">-0 جنيه</span></div>
       <div class="cart-row"><span>الشحن:</span><span>40 جنيه</span></div>
       <div class="cart-row total"><span>الإجمالي النهائي:</span><span id="cart-total">40</span></div>
       <button class="btn-primary full" onclick="openCheckout()">إتمام الطلب</button>
@@ -307,6 +283,45 @@
           <option>قنا</option><option>الأقصر</option><option>أسوان</option>
           <option>البحر الأحمر</option><option>الوادي الجديد</option><option>مطروح</option>
         </select>
+
+        <!-- ===== Checkout Summary ===== -->
+        <div class="checkout-summary">
+          <div class="summary-row">
+            <span>الإجمالي:</span>
+            <span id="checkout-subtotal">0 جنيه</span>
+          </div>
+          <div class="summary-row">
+            <span>الشحن:</span>
+            <span id="checkout-shipping">40 جنيه</span>
+          </div>
+          <div class="summary-row" id="checkout-discount-row" style="display:none;">
+            <span>🎟️ الخصم:</span>
+            <span id="checkout-discount">-0 جنيه</span>
+          </div>
+          <div class="summary-row total">
+            <span>الإجمالي النهائي:</span>
+            <span id="checkout-total">40 جنيه</span>
+          </div>
+        </div>
+
+        <!-- ===== Coupon Section ===== -->
+        <div class="checkout-coupon">
+          <label class="checkout-coupon-label">🎟️ عندك كود خصم؟</label>
+
+          <div id="coupon-input-wrap" class="coupon-input-wrap">
+            <input type="text" id="coupon-input" placeholder="اكتب الكود هنا" maxlength="20" />
+            <button type="button" id="coupon-apply-btn" onclick="applyCoupon()">تطبيق</button>
+          </div>
+
+          <div id="coupon-applied" class="coupon-applied" style="display:none;">
+            <span>✅ <strong id="coupon-applied-code">-</strong></span>
+            <span id="coupon-applied-discount">-0 جنيه</span>
+            <button type="button" onclick="removeCoupon()" class="coupon-remove">✕</button>
+          </div>
+
+          <div id="coupon-message"></div>
+        </div>
+        <!-- ===== End Coupon Section ===== -->
 
         <div class="payment-section">
           <label class="payment-label">طريقة الدفع:</label>
