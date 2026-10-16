@@ -1,0 +1,9 @@
+{
+  "name": "forsa-store",
+  "version": "1.0.0",
+  "description": "FORSA - Egyptian tech accessories store",
+  "private": true,
+  "engines": {
+    "node": "18.x"
+  }
+}

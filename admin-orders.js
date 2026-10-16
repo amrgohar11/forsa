@@ -3,7 +3,6 @@ let allOrders = [];
 let filteredOrders = [];
 
 // ⚠️ ملاحظة: switchAdminTab اتشالت من هنا لأنها موجودة في admin.js
-// (كانت بتلغى النسخة الجديدة اللي فيها categories)
 
 // ========== LOAD ORDERS ==========
 async function loadOrders() {
@@ -120,6 +119,26 @@ async function changeOrderStatus(id, status) {
     if (order) order.status = status;
     showToast(`✅ تم تحديث الحالة: ${status}`);
     renderOrders();
+
+    // ===== إرسال إشعار واتساب للعميل (WhatsApp Cloud API) =====
+    if (typeof sendWhatsAppMessage === "function" && order && order.phone) {
+      const statusMsg = buildStatusUpdateMessage({
+        orderNumber: order.orderNumber || order.id.slice(-6),
+        name: order.name,
+        total: order.total,
+        address: order.address
+      }, status);
+
+      sendWhatsAppMessage(order.phone, statusMsg)
+        .then(result => {
+          if (result.success) {
+            console.log("✅ إشعار الحالة اتبعت على واتساب");
+          } else {
+            console.warn("⚠️ فشل إرسال إشعار الحالة:", result.error);
+          }
+        })
+        .catch(err => console.warn("⚠️ WhatsApp error:", err));
+    }
   } else {
     showToast("❌ فشل تحديث الحالة", true);
   }

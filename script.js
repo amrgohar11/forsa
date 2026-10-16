@@ -97,7 +97,6 @@ function renderCategories() {
   const grid = document.getElementById("cat-grid");
   if (!grid) return;
   grid.innerHTML = allData.categories.map(c => {
-    // لو الأيقونة رابط صورة، اعرضها كصورة
     const isImageUrl = c.icon && (
       c.icon.startsWith("http://") || 
       c.icon.startsWith("https://") || 
@@ -283,7 +282,7 @@ function removeFromCart(id) {
   updateCart();
 }
 
-// ========== UPDATE CART (بسيط — بدون خصم) ==========
+// ========== UPDATE CART ==========
 function updateCart() {
   const cartItems = document.getElementById("cart-items");
   const cartCount = document.getElementById("cart-count");
@@ -316,7 +315,6 @@ function updateCart() {
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   if (subtotalEl) subtotalEl.textContent = subtotal;
 
-  // السلة بقت بتعرض الإجمالي بدون خصم — الخصم هيظهر في الـ Checkout
   const finalTotal = subtotal + SHIPPING;
   if (totalEl) totalEl.textContent = finalTotal;
 
@@ -339,17 +337,13 @@ function openCheckout() {
   if (modal) modal.classList.add("active");
   document.body.style.overflow = "hidden";
 
-  // ===== املأ رقم الموبايل المحفوظ =====
   const phoneInput = document.getElementById("phone");
   const savedPhone = localStorage.getItem(PHONE_KEY);
   if (phoneInput && !phoneInput.value && savedPhone) {
     phoneInput.value = savedPhone;
   }
 
-  // ===== زوّد ملخص الطلب بالأسعار (يظهر جوه الـ modal) =====
   updateCheckoutSummary();
-
-  // ===== reset UI الكوبون =====
   resetCouponUI();
 
   if (typeof fbq !== "undefined") {
@@ -371,7 +365,7 @@ function closeCheckout(e, force = false) {
   }
 }
 
-// ========== CHECKOUT SUMMARY (يعرض الإجمالي والخصم جوه الـ modal) ==========
+// ========== CHECKOUT SUMMARY ==========
 function updateCheckoutSummary() {
   const subtotalEl = document.getElementById("checkout-subtotal");
   const shippingEl = document.getElementById("checkout-shipping");
@@ -406,7 +400,6 @@ function resetCouponUI() {
   const input = document.getElementById("coupon-input");
 
   if (appliedCoupon) {
-    // فيه كوبون مطبق بالفعل — وريه في الـ modal
     showAppliedCoupon();
   } else {
     if (inputWrap) inputWrap.style.display = "flex";
@@ -584,6 +577,20 @@ async function sendWhatsApp(e) {
 
   localStorage.setItem('forsa_last_order', JSON.stringify(orderForConfirmation));
 
+  // ===== إرسال إشعار واتساب للعميل (WhatsApp Cloud API) =====
+  if (typeof sendWhatsAppMessage === "function") {
+    const confirmationMsg = buildOrderConfirmationMessage(orderForConfirmation);
+    sendWhatsAppMessage(phone, confirmationMsg)
+      .then(result => {
+        if (result.success) {
+          console.log("✅ رسالة التأكيد اتبعتت على واتساب");
+        } else {
+          console.warn("⚠️ فشل إرسال رسالة التأكيد:", result.error);
+        }
+      })
+      .catch(err => console.warn("⚠️ WhatsApp error:", err));
+  }
+
   // ===== امسح الكوبون =====
   appliedCoupon = null;
   localStorage.removeItem("forsa_coupon");
@@ -712,7 +719,6 @@ async function applyCoupon() {
     return;
   }
 
-  // ===== احصل على رقم الموبايل من الـ Checkout =====
   const phoneInput = document.getElementById("phone");
   const customerPhone = (phoneInput && phoneInput.value.trim()) || "";
 
@@ -754,7 +760,7 @@ async function applyCoupon() {
 
     showCouponMessage(`✅ تم تطبيق كود ${code} — وفّرت ${result.discount} جنيه!`, "success");
     showAppliedCoupon();
-    updateCheckoutSummary(); // ← تحديث ملخص الطلب في الـ Checkout
+    updateCheckoutSummary();
     localStorage.setItem("forsa_coupon", JSON.stringify(appliedCoupon));
 
   } catch (e) {
@@ -784,7 +790,7 @@ function removeCoupon() {
   const input = document.getElementById("coupon-input");
   if (input) input.value = "";
 
-  updateCheckoutSummary(); // ← تحديث ملخص الطلب
+  updateCheckoutSummary();
 
   if (typeof showToast === "function") {
     showToast("🎟️ تم إزالة الكوبون");
