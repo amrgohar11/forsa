@@ -120,24 +120,33 @@ async function changeOrderStatus(id, status) {
     showToast(`✅ تم تحديث الحالة: ${status}`);
     renderOrders();
 
-    // ===== إرسال إشعار واتساب للعميل (WhatsApp Cloud API) =====
-    if (typeof sendWhatsAppMessage === "function" && order && order.phone) {
-      const statusMsg = buildStatusUpdateMessage({
-        orderNumber: order.orderNumber || order.id.slice(-6),
+    // ===== إرسال إشعار واتساب للعميل (WhatsApp Templates) =====
+    if (order && order.phone) {
+      const orderData = {
         name: order.name,
-        total: order.total,
-        address: order.address
-      }, status);
+        orderNumber: order.orderNumber || order.id.slice(-6),
+        phone: order.phone,
+        address: order.address,
+        city: order.city,
+        total: order.total
+      };
 
-      sendWhatsAppMessage(order.phone, statusMsg)
-        .then(result => {
-          if (result.success) {
-            console.log("✅ إشعار الحالة اتبعت على واتساب");
-          } else {
-            console.warn("⚠️ فشل إرسال إشعار الحالة:", result.error);
-          }
-        })
-        .catch(err => console.warn("⚠️ WhatsApp error:", err));
+      if (status === "تم الشحن" && typeof sendOrderShipped === "function") {
+        console.log("📤 إرسال إشعار شحن عبر Template...");
+        sendOrderShipped(order.phone, orderData)
+          .then(r => console.log("✅ Shipped result:", r))
+          .catch(e => console.error("❌ Shipped error:", e));
+      } else if (status === "تم التسليم" && typeof sendOrderDelivered === "function") {
+        console.log("📤 إرسال إشعار تسليم عبر Template...");
+        sendOrderDelivered(order.phone, orderData)
+          .then(r => console.log("✅ Delivered result:", r))
+          .catch(e => console.error("❌ Delivered error:", e));
+      } else if (typeof sendWhatsAppMessage === "function") {
+        // Fallback للنص الحر (24h window)
+        const msg = buildStatusUpdateMessage(orderData, status);
+        console.log("📤 إرسال إشعار نصي (fallback)...");
+        sendWhatsAppMessage(order.phone, msg).catch(console.warn);
+      }
     }
   } else {
     showToast("❌ فشل تحديث الحالة", true);

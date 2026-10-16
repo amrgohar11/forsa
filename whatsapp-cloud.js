@@ -5,21 +5,33 @@
 const WA_API_ENDPOINT = "/api/send-whatsapp";
 
 // ===== إرسال رسالة عبر WhatsApp Cloud API =====
-async function sendWhatsAppMessage(phone, message) {
-  if (!phone || !message) {
-    return { success: false, error: "Missing phone or message" };
+async function sendWhatsAppMessage(phone, message, template, params) {
+  if (!phone) {
+    return { success: false, error: "Missing phone" };
+  }
+
+  if (!template && !message) {
+    return { success: false, error: "Missing message or template" };
   }
 
   try {
+    const body = {
+      to: phone
+    };
+
+    if (template) {
+      body.template = template;
+      body.params = params || [];
+    } else {
+      body.message = message;
+    }
+
     const response = await fetch(WA_API_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        to: phone,
-        message: message
-      })
+      body: JSON.stringify(body)
     });
 
     const data = await response.json();
@@ -37,7 +49,50 @@ async function sendWhatsAppMessage(phone, message) {
   }
 }
 
-// ===== بناء رسالة تأكيد الطلب =====
+// ===== إرسال تأكيد الطلب عبر Template =====
+async function sendOrderConfirmation(phone, order) {
+  const itemsText = (order.items || [])
+    .map(item => `${item.name} × ${item.qty}`)
+    .join(", ");
+
+  const trackUrl = `https://forsa-store.vercel.app/track.html?id=${order.orderNumber}`;
+
+  return sendWhatsAppMessage(phone, null, "order_confirmation", [
+    order.name || "عميل",
+    String(order.orderNumber || ""),
+    itemsText || "منتجات",
+    String(order.subtotal || 0),
+    String(order.shipping || 0),
+    String(order.total || 0),
+    order.address || "-",
+    order.city || "-",
+    trackUrl
+  ]);
+}
+
+// ===== إرسال إشعار الشحن عبر Template =====
+async function sendOrderShipped(phone, order) {
+  const trackUrl = `https://forsa-store.vercel.app/track.html?id=${order.orderNumber}`;
+  const deliveryDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+    .toLocaleDateString("ar-EG", { day: "numeric", month: "long", year: "numeric" });
+
+  return sendWhatsAppMessage(phone, null, "order_shipped", [
+    order.name || "عميل",
+    String(order.orderNumber || ""),
+    deliveryDate,
+    trackUrl
+  ]);
+}
+
+// ===== إرسال إشعار التسليم عبر Template =====
+async function sendOrderDelivered(phone, order) {
+  return sendWhatsAppMessage(phone, null, "order_delivered", [
+    order.name || "عميل",
+    String(order.orderNumber || "")
+  ]);
+}
+
+// ===== بناء رسالة تأكيد الطلب (نص عادي - fallback) =====
 function buildOrderConfirmationMessage(order) {
   const itemsText = (order.items || [])
     .map(item => `• ${item.name} × ${item.qty} = ${item.price * item.qty} ج`)
@@ -72,7 +127,7 @@ ${trackUrl}
 FORSA - لُقطة تستاهلها 🎯`;
 }
 
-// ===== بناء رسالة تغيير الحالة =====
+// ===== بناء رسالة تغيير الحالة (نص عادي - fallback) =====
 function buildStatusUpdateMessage(order, newStatus) {
   const statusConfig = {
     "جديد": { emoji: "🆕", msg: "طلبك وصلنا وجاري تجهيزه 📦" },

@@ -571,20 +571,24 @@ async function sendWhatsApp(e) {
 
   localStorage.setItem('forsa_last_order', JSON.stringify(orderForConfirmation));
 
-  // ===== إرسال إشعار واتساب (مع console.log للتشخيص) =====
-  if (typeof sendWhatsAppMessage === "function") {
-    const confirmationMsg = buildOrderConfirmationMessage(orderForConfirmation);
-    console.log("📤 جاري إرسال رسالة واتساب للرقم:", phone);
+  // ===== إرسال إشعار واتساب (Template) =====
+  if (typeof sendOrderConfirmation === "function") {
+    console.log("📤 جاري إرسال تأكيد الطلب عبر Template...");
     
-    sendWhatsAppMessage(phone, confirmationMsg)
+    sendOrderConfirmation(phone, orderForConfirmation)
       .then(result => {
         console.log("✅ WhatsApp result:", result);
       })
       .catch(err => {
         console.error("❌ WhatsApp error:", err);
       });
+  } else if (typeof sendWhatsAppMessage === "function") {
+    // Fallback للنص العادي
+    const confirmationMsg = buildOrderConfirmationMessage(orderForConfirmation);
+    console.log("📤 Fallback: إرسال رسالة نصية...");
+    sendWhatsAppMessage(phone, confirmationMsg).catch(console.warn);
   } else {
-    console.warn("⚠️ sendWhatsAppMessage غير متاح");
+    console.warn("⚠️ لا يوجد دالة إرسال متاحة");
   }
 
   appliedCoupon = null;

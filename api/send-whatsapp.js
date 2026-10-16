@@ -56,22 +56,45 @@ export default async function handler(req, res) {
     let payload;
 
     if (template) {
-      // Template message (for business-initiated conversations)
+      // ===== Template message (business-initiated) =====
+      let components = [];
+      if (params && params.length > 0) {
+        components = [{
+          type: "body",
+          parameters: params.map(p => ({
+            type: "text",
+            text: String(p)
+          }))
+        }];
+      }
+
+      // Language: ar for custom templates, en_US for hello_world
+      const templateLang = template === "hello_world" ? "en_US" : "ar";
+
       payload = {
         messaging_product: "whatsapp",
         to: intlPhone,
         type: "template",
         template: {
           name: template,
-          language: { code: "ar" },
-          components: params ? [{
-            type: "body",
-            parameters: params.map(p => ({ type: "text", text: String(p) }))
-          }] : []
+          language: { code: templateLang },
+          components: components
+        }
+      };
+    } else if (message) {
+      // ===== Text message (only within 24h window) =====
+      payload = {
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to: intlPhone,
+        type: "text",
+        text: {
+          preview_url: false,
+          body: message
         }
       };
     } else {
-      // Default to hello_world template
+      // ===== Fallback to hello_world =====
       payload = {
         messaging_product: "whatsapp",
         to: intlPhone,
