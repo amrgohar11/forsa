@@ -263,6 +263,141 @@ async function fbDeleteReview(id) {
   }
 }
 
+// ========== COUPONS HELPERS ==========
+
+// جلب كل الكوبونات
+async function fbGetCoupons() {
+  if (!db) return null;
+  try {
+    const snapshot = await db.collection("coupons").get();
+    const coupons = [];
+    snapshot.forEach(doc => {
+      coupons.push({ id: doc.id, ...doc.data() });
+    });
+    return coupons;
+  } catch (e) {
+    console.error("Error getting coupons:", e);
+    return null;
+  }
+}
+
+// إضافة كوبون جديد
+async function fbAddCoupon(code, data) {
+  if (!db) return false;
+  try {
+    await db.collection("coupons").doc(code.toUpperCase()).set({
+      ...data,
+      code: code.toUpperCase(),
+      usedCount: data.usedCount || 0,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    return true;
+  } catch (e) {
+    console.error("Error adding coupon:", e);
+    return false;
+  }
+}
+
+// تعديل كوبون
+async function fbUpdateCoupon(code, data) {
+  if (!db) return false;
+  try {
+    await db.collection("coupons").doc(code.toUpperCase()).update(data);
+    return true;
+  } catch (e) {
+    console.error("Error updating coupon:", e);
+    return false;
+  }
+}
+
+// حذف كوبون
+async function fbDeleteCoupon(code) {
+  if (!db) return false;
+  try {
+    await db.collection("coupons").doc(code.toUpperCase()).delete();
+    return true;
+  } catch (e) {
+    console.error("Error deleting coupon:", e);
+    return false;
+  }
+}
+
+// التحقق من كوبون (للعميل)
+async function fbValidateCoupon(code, orderTotal) {
+  if (!db) return { valid: false, error: "Service unavailable" };
+  try {
+    const doc = await db.collection("coupons").doc(code.toUpperCase()).get();
+    
+    if (!doc.exists) {
+      return { valid: false, error: "الكود غير موجود" };
+    }
+    
+    const coupon = doc.data();
+    
+    // التحقق من التفعيل
+    if (!coupon.active) {
+      return { valid: false, error: "الكود غير مفعّل" };
+    }
+    
+    // التحقق من تاريخ الانتهاء
+    if (coupon.expiresAt) {
+      const expiryDate = coupon.expiresAt.toDate?.() || new Date(coupon.expiresAt);
+      if (new Date() > expiryDate) {
+        return { valid: false, error: "الكود منتهي الصلاحية" };
+      }
+    }
+    
+    // التحقق من الحد الأدنى
+    if (coupon.minOrder && orderTotal < coupon.minOrder) {
+      return { 
+        valid: false, 
+        error: `الحد الأدنى للطلب ${coupon.minOrder} جنيه` 
+      };
+    }
+    
+    // التحقق من عدد مرات الاستخدام
+    if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
+      return { valid: false, error: "تم استنفاد الكود" };
+    }
+    
+    // حساب الخصم
+    let discount = 0;
+    if (coupon.type === "percentage") {
+      discount = (orderTotal * coupon.value) / 100;
+      if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+        discount = coupon.maxDiscount;
+      }
+    } else if (coupon.type === "fixed") {
+      discount = coupon.value;
+      if (discount > orderTotal) discount = orderTotal;
+    }
+    
+    return {
+      valid: true,
+      discount: Math.round(discount),
+      coupon: coupon
+    };
+    
+  } catch (e) {
+    console.error("Error validating coupon:", e);
+    return { valid: false, error: "حصلت مشكلة، جرب تاني" };
+  }
+}
+
+// زيادة عدد مرات الاستخدام
+async function fbIncrementCouponUsage(code) {
+  if (!db) return false;
+  try {
+    await db.collection("coupons").doc(code.toUpperCase()).update({
+      usedCount: firebase.firestore.FieldValue.increment(1)
+    });
+    return true;
+  } catch (e) {
+    console.error("Error incrementing coupon:", e);
+    return false;
+  }
+}
+
 // ========== SEND WHATSAPP NOTIFICATION TO ADMIN ==========
 async function sendAdminNotification(order) {
   if (!ADMIN_API_KEY || ADMIN_API_KEY === "ضع_API_KEY_هنا") {
@@ -287,7 +422,7 @@ async function sendAdminNotification(order) {
 ${itemsText}
 
 💰 *الإجمالي:* ${order.subtotal} ج
-🚚 *الشحن:* ${order.shipping} ج
+${order.discount ? `🎟️ *الخصم (${order.couponCode}):* -${order.discount} ج\n` : ""}🚚 *الشحن:* ${order.shipping} ج
 🧾 *الإجمالي النهائي:* ${order.total} ج
 ${order.notes ? "\n📝 *ملاحظات:* " + order.notes : ""}
 
