@@ -71,10 +71,18 @@ function renderCoupons() {
     const statusClass = c.active ? "active" : "inactive";
     const statusText = c.active ? "✅ نشط" : "❌ موقوف";
 
+    // ===== First Order Badge =====
+    const firstOrderBadge = c.firstOrderOnly
+      ? `<span class="coupon-status active" style="background: rgba(23, 105, 255, 0.15); color: var(--blue-light); border-color: rgba(23, 105, 255, 0.3); margin-top: 4px; display: block; font-size: 10px;">🎯 أول طلب</span>`
+      : "";
+
     return `
       <tr>
         <td>${i + 1}</td>
-        <td><span class="coupon-code-badge">${c.code}</span></td>
+        <td>
+          <span class="coupon-code-badge">${c.code}</span>
+          ${firstOrderBadge}
+        </td>
         <td><span class="coupon-discount-badge">${discountText}</span></td>
         <td>${minOrderText}</td>
         <td>${maxDiscountText}</td>
@@ -122,6 +130,12 @@ function openCouponModal(coupon = null) {
   document.getElementById("c-usagelimit").value = coupon ? (coupon.usageLimit || 0) : 0;
   document.getElementById("c-active").checked = coupon ? coupon.active : true;
 
+  // ===== First Order Only =====
+  const firstOrderEl = document.getElementById("c-firstorder");
+  if (firstOrderEl) {
+    firstOrderEl.checked = coupon ? (coupon.firstOrderOnly || false) : false;
+  }
+
   document.getElementById("coupon-modal").classList.add("active");
 }
 
@@ -145,6 +159,10 @@ async function saveCoupon(e) {
   const maxDiscount = parseFloat(document.getElementById("c-maxdiscount").value) || 0;
   const usageLimit = parseInt(document.getElementById("c-usagelimit").value) || 0;
   const active = document.getElementById("c-active").checked;
+
+  // ===== First Order Only =====
+  const firstOrderEl = document.getElementById("c-firstorder");
+  const firstOrderOnly = firstOrderEl ? firstOrderEl.checked : false;
 
   // Validation
   if (!code) {
@@ -183,6 +201,7 @@ async function saveCoupon(e) {
     maxDiscount,
     usageLimit,
     active,
+    firstOrderOnly: firstOrderOnly,
     usedCount: editCouponCode ? (allCoupons.find(c => c.code === editCouponCode)?.usedCount || 0) : 0
   };
 
