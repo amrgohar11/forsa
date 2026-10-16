@@ -61,6 +61,15 @@
   <noscript><img height="1" width="1" style="display:none"
   src="https://www.facebook.com/tr?id=2255667811643260&ev=PageView&noscript=1"
   /></noscript>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0A0C10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FORSA" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="apple-touch-icon" href="assets/logo.png" />
 </head>
 <body>
 
@@ -266,7 +275,7 @@
     </div>
   </footer>
 
-  <!-- Cart (same as blog.html) -->
+  <!-- Cart -->
   <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
   <aside class="cart" id="cart">
     <div class="cart-header">
@@ -282,7 +291,7 @@
     </div>
   </aside>
 
-  <!-- Checkout Modal (same as blog.html) -->
+  <!-- Checkout Modal -->
   <div class="modal-overlay" id="modal-overlay" onclick="closeCheckout(event)">
     <div class="modal" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeCheckout(event, true)">✕</button>
@@ -347,7 +356,7 @@
     </div>
   </div>
 
-  <!-- Search Modal (same as blog.html) -->
+  <!-- Search Modal -->
   <div class="search-modal-overlay" id="search-modal-overlay" onclick="closeSearchModal(event)">
     <div class="search-modal" onclick="event.stopPropagation()">
       <div class="search-modal-header">
@@ -392,5 +401,6 @@
   <script src="script.js"></script>
   <script src="blog-post.js"></script>
   <script src="animations.js"></script>
+  <script src="pwa.js"></script>
 </body>
 </html>

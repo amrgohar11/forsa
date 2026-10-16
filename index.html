@@ -89,6 +89,15 @@
   src="https://www.facebook.com/tr?id=2255667811643260&ev=PageView&noscript=1"
   /></noscript>
   <!-- End Meta Pixel Code -->
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0A0C10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FORSA" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="apple-touch-icon" href="assets/logo.png" />
 </head>
 <body>
 
@@ -320,6 +329,7 @@
       </div>
       <p class="footer-copy">© 2026 FORSA — جميع الحقوق محفوظة</p>
       <div style="margin-top: 16px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; font-size: 13px;">
+        <a href="blog.html" style="color: var(--lime); text-decoration: none; font-weight: 700;">📝 المدونة</a>
         <a href="privacy.html" style="color: var(--gray); text-decoration: none;">سياسة الخصوصية</a>
         <a href="terms.html" style="color: var(--gray); text-decoration: none;">الشروط والأحكام</a>
         <a href="returns.html" style="color: var(--gray); text-decoration: none;">سياسة الاسترجاع</a>
@@ -368,7 +378,6 @@
           <option>البحر الأحمر</option><option>الوادي الجديد</option><option>مطروح</option>
         </select>
 
-        <!-- ===== Checkout Summary ===== -->
         <div class="checkout-summary">
           <div class="summary-row">
             <span>الإجمالي:</span>
@@ -388,7 +397,6 @@
           </div>
         </div>
 
-        <!-- ===== Coupon Section ===== -->
         <div class="checkout-coupon">
           <label class="checkout-coupon-label">🎟️ عندك كود خصم؟</label>
 
@@ -405,7 +413,6 @@
 
           <div id="coupon-message"></div>
         </div>
-        <!-- ===== End Coupon Section ===== -->
 
         <div class="payment-section">
           <label class="payment-label">طريقة الدفع:</label>
@@ -496,5 +503,6 @@
 
   <script src="script.js"></script>
   <script src="animations.js"></script>
+  <script src="pwa.js"></script>
 </body>
 </html>
