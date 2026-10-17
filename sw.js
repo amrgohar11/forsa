@@ -2,9 +2,9 @@
 // FORSA Service Worker - PWA
 // ============================================
 
-const CACHE_VERSION = "forsa-v1";
-const STATIC_CACHE = "forsa-static-v1";
-const DYNAMIC_CACHE = "forsa-dynamic-v1";
+const CACHE_VERSION = "forsa-v2";
+const STATIC_CACHE = "forsa-static-v2";
+const DYNAMIC_CACHE = "forsa-dynamic-v2";
 
 // الملفات الأساسية اللي تتخزن دايمًا
 const PRECACHE_URLS = [
