@@ -1,12 +1,12 @@
 // ============================================
-// FORSA Service Worker - PWA
+// FORSA Service Worker - PWA (v4)
+// الشبكة أولاً للـ HTML والـ JS
 // ============================================
 
-const CACHE_VERSION = "forsa-v2";
-const STATIC_CACHE = "forsa-static-v2";
-const DYNAMIC_CACHE = "forsa-dynamic-v2";
+const CACHE_VERSION = "forsa-v4";
+const STATIC_CACHE = "forsa-static-v4";
+const DYNAMIC_CACHE = "forsa-dynamic-v4";
 
-// الملفات الأساسية اللي تتخزن دايمًا
 const PRECACHE_URLS = [
   "/",
   "/index.html",
@@ -18,101 +18,103 @@ const PRECACHE_URLS = [
   "/manifest.json"
 ];
 
+const NEVER_CACHE_PATTERNS = [
+  /\.m?js$/i,
+  /\.html?$/i,
+  /\/api\//i
+];
+
 // ===== INSTALL =====
 self.addEventListener("install", event => {
-  console.log("🔧 Service Worker: Installing...");
-  event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then(cache => {
-        console.log("📦 Caching static files");
-        return cache.addAll(PRECACHE_URLS);
-      })
-      .then(() => self.skipWaiting())
-      .catch(err => console.warn("⚠️ Cache failed:", err))
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(STATIC_CACHE);
+    await Promise.all(PRECACHE_URLS.map(async path => {
+      try {
+        const response = await fetch(path, { cache: "reload" });
+        if (response.ok) {
+          await cache.put(path, response);
+        }
+      } catch (error) {
+        console.warn("Precache skipped:", path, error);
+      }
+    }));
+    await self.skipWaiting();
+  })());
 });
 
 // ===== ACTIVATE =====
 self.addEventListener("activate", event => {
-  console.log("✅ Service Worker: Activated");
-  event.waitUntil(
-    caches.keys()
-      .then(cacheNames => {
-        return Promise.all(
-          cacheNames
-            .filter(name => name !== STATIC_CACHE && name !== DYNAMIC_CACHE)
-            .map(name => {
-              console.log("🗑️ Deleting old cache:", name);
-              return caches.delete(name);
-            })
-        );
-      })
-      .then(() => self.clients.claim())
-  );
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(
+      keys
+        .filter(key =>
+          key.startsWith("forsa-") &&
+          ![STATIC_CACHE, DYNAMIC_CACHE].includes(key)
+        )
+        .map(key => caches.delete(key))
+    );
+    await self.clients.claim();
+  })());
 });
 
 // ===== FETCH =====
 self.addEventListener("fetch", event => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // تجاهل الطلبات دي:
-  // - غير GET
-  // - Firebase APIs
-  // - Google Analytics
-  // - Facebook Pixel
-  // - مواقع خارجية
+  const request = event.request;
   if (request.method !== "GET") return;
-  if (url.origin !== location.origin) return;
-  if (url.pathname.includes("/api/")) return;
-  if (url.hostname.includes("firebase")) return;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith("/api/")) return;
 
-  // ===== استراتيجية: Network First للـ HTML =====
-  if (request.headers.get("accept")?.includes("text/html")) {
+  if (
+    NEVER_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname)) ||
+    request.destination === "script" ||
+    request.destination === "document"
+  ) {
     event.respondWith(networkFirst(request));
     return;
   }
 
-  // ===== استراتيجية: Cache First للـ CSS/JS/Images =====
   event.respondWith(cacheFirst(request));
 });
 
-// ===== Network First (للـ HTML) =====
+// ===== NETWORK FIRST (للـ JS والـ HTML) =====
 async function networkFirst(request) {
   try {
-    const networkResponse = await fetch(request);
-    if (networkResponse && networkResponse.status === 200) {
+    const response = await fetch(request, { cache: "no-store" });
+    if (response && response.ok) {
       const cache = await caches.open(DYNAMIC_CACHE);
-      cache.put(request, networkResponse.clone());
+      await cache.put(request, response.clone());
     }
-    return networkResponse;
+    return response;
   } catch (error) {
     const cached = await caches.match(request);
     if (cached) return cached;
-    // Fallback
-    return caches.match("/index.html");
+    if (request.mode === "navigate") {
+      const offlinePage = await caches.match("/index.html");
+      if (offlinePage) return offlinePage;
+    }
+    return new Response("Offline: resource unavailable", {
+      status: 503,
+      statusText: "Service Unavailable",
+      headers: { "Content-Type": "text/plain; charset=utf-8" }
+    });
   }
 }
 
-// ===== Cache First (للـ assets) =====
+// ===== CACHE FIRST (للصور والـ CSS) =====
 async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
-
-  try {
-    const networkResponse = await fetch(request);
-    if (networkResponse && networkResponse.status === 200) {
-      const cache = await caches.open(DYNAMIC_CACHE);
-      cache.put(request, networkResponse.clone());
-    }
-    return networkResponse;
-  } catch (error) {
-    console.warn("⚠️ Offline: no cache for", request.url);
-    throw error;
+  const response = await fetch(request);
+  if (response && response.ok) {
+    const cache = await caches.open(DYNAMIC_CACHE);
+    await cache.put(request, response.clone());
   }
+  return response;
 }
 
-// ===== رسائل من الصفحة =====
+// ===== رسائل =====
 self.addEventListener("message", event => {
   if (event.data === "SKIP_WAITING") {
     self.skipWaiting();

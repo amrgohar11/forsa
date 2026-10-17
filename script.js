@@ -1,5 +1,5 @@
 // ==========================================
-// 🚨 إصدار جديد - تحديث رقم الطلب
+// 🚨 إصدار جديد - تحديث رقم الطلب وفحص الحفظ
 // ==========================================
 console.log("🚨 تم تحميل النسخة الجديدة من script.js بنجاح!");
 
@@ -453,7 +453,6 @@ async function saveOrderToFirebase(orderData) {
     return null;
   }
 
-  // دي بصمة عشان نتأكد إن الكود ده اللي شغال
   console.log("🚨 حفظ الطلب بالكود الجديد! الرقم هو:", orderData.orderNumber);
 
   const order = {
@@ -519,23 +518,13 @@ async function sendWhatsApp(e) {
     icon: item.icon || "📦"
   }));
 
-  // ✅✅✅ ولّد رقم الطلب هنا — قبل الحفظ ✅✅✅
+  // ✅ ولّد رقم الطلب
   const orderNumber = Math.floor(100000 + Math.random() * 900000);
-
-  if (typeof fbq !== "undefined") {
-    const numItems = cart.reduce((s, i) => s + i.qty, 0);
-    fbq('track', 'Purchase', {
-      value: total,
-      currency: 'EGP',
-      num_items: numItems
-    });
-  }
-
   const savedCoupon = appliedCoupon;
 
-  // ✅ احفظ الطلب في Firebase مع orderNumber
-  await saveOrderToFirebase({
-    orderNumber,  // ← ✅✅✅ السطر الأهم
+  // ✅ احفظ الطلب وافحص النتيجة
+  const savedOrderId = await saveOrderToFirebase({
+    orderNumber,
     name, phone, address, city, notes, payment,
     items: orderItems,
     subtotal,
@@ -545,6 +534,22 @@ async function sendWhatsApp(e) {
     couponCode: savedCoupon ? savedCoupon.code : null,
     paymentMethod: paymentNames[payment]
   });
+
+  // 🚨 لو الحفظ فشل، قف هنا واعرض رسالة
+  if (!savedOrderId) {
+    showToast("تعذر تسجيل الطلب. بياناتك لم تُحفظ، حاول مرة تانية.", true);
+    return;
+  }
+
+  // ✅ الحفظ نجح.. سجل الـ Pixel
+  if (typeof fbq !== "undefined") {
+    const numItems = cart.reduce((s, i) => s + i.qty, 0);
+    fbq('track', 'Purchase', {
+      value: total,
+      currency: 'EGP',
+      num_items: numItems
+    });
+  }
 
   if (savedCoupon && typeof fbIncrementCouponUsage === "function") {
     try {
@@ -568,7 +573,7 @@ async function sendWhatsApp(e) {
   toggleCart();
 
   const orderForConfirmation = {
-    orderNumber: orderNumber,  // ← ✅ نفس الرقم اللي اتحفظ
+    orderNumber: orderNumber,
     createdAt: Date.now(),
     items: orderItems,
     subtotal: subtotal,
@@ -586,20 +591,13 @@ async function sendWhatsApp(e) {
 
   if (typeof sendOrderConfirmation === "function") {
     console.log("📤 جاري إرسال تأكيد الطلب عبر Template...");
-    
     sendOrderConfirmation(phone, orderForConfirmation)
-      .then(result => {
-        console.log("✅ WhatsApp result:", result);
-      })
-      .catch(err => {
-        console.error("❌ WhatsApp error:", err);
-      });
+      .then(result => console.log("✅ WhatsApp result:", result))
+      .catch(err => console.error("❌ WhatsApp error:", err));
   } else if (typeof sendWhatsAppMessage === "function") {
     const confirmationMsg = buildOrderConfirmationMessage(orderForConfirmation);
     console.log("📤 Fallback: إرسال رسالة نصية...");
     sendWhatsAppMessage(phone, confirmationMsg).catch(console.warn);
-  } else {
-    console.warn("⚠️ لا يوجد دالة إرسال متاحة");
   }
 
   appliedCoupon = null;
