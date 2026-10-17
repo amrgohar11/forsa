@@ -1,3 +1,8 @@
+// ==========================================
+// 🚨 إصدار جديد - تحديث رقم الطلب
+// ==========================================
+console.log("🚨 تم تحميل النسخة الجديدة من script.js بنجاح!");
+
 // ========== CONFIG ==========
 const WHATSAPP_NUMBER = "201556687455";
 const SHIPPING = 40;
@@ -448,6 +453,9 @@ async function saveOrderToFirebase(orderData) {
     return null;
   }
 
+  // دي بصمة عشان نتأكد إن الكود ده اللي شغال
+  console.log("🚨 حفظ الطلب بالكود الجديد! الرقم هو:", orderData.orderNumber);
+
   const order = {
     ...orderData,
     status: "جديد",
@@ -511,9 +519,7 @@ async function sendWhatsApp(e) {
     icon: item.icon || "📦"
   }));
 
-  // ============================================
   // ✅✅✅ ولّد رقم الطلب هنا — قبل الحفظ ✅✅✅
-  // ============================================
   const orderNumber = Math.floor(100000 + Math.random() * 900000);
 
   if (typeof fbq !== "undefined") {
@@ -527,9 +533,7 @@ async function sendWhatsApp(e) {
 
   const savedCoupon = appliedCoupon;
 
-  // ============================================
   // ✅ احفظ الطلب في Firebase مع orderNumber
-  // ============================================
   await saveOrderToFirebase({
     orderNumber,  // ← ✅✅✅ السطر الأهم
     name, phone, address, city, notes, payment,
@@ -563,7 +567,6 @@ async function sendWhatsApp(e) {
   updateCart();
   toggleCart();
 
-  // ===== حفظ بيانات الطلب للعرض في صفحة التأكيد =====
   const orderForConfirmation = {
     orderNumber: orderNumber,  // ← ✅ نفس الرقم اللي اتحفظ
     createdAt: Date.now(),
@@ -581,7 +584,6 @@ async function sendWhatsApp(e) {
 
   localStorage.setItem('forsa_last_order', JSON.stringify(orderForConfirmation));
 
-  // ===== إرسال إشعار واتساب (Template) =====
   if (typeof sendOrderConfirmation === "function") {
     console.log("📤 جاري إرسال تأكيد الطلب عبر Template...");
     
@@ -593,7 +595,6 @@ async function sendWhatsApp(e) {
         console.error("❌ WhatsApp error:", err);
       });
   } else if (typeof sendWhatsAppMessage === "function") {
-    // Fallback للنص العادي
     const confirmationMsg = buildOrderConfirmationMessage(orderForConfirmation);
     console.log("📤 Fallback: إرسال رسالة نصية...");
     sendWhatsAppMessage(phone, confirmationMsg).catch(console.warn);
@@ -604,7 +605,6 @@ async function sendWhatsApp(e) {
   appliedCoupon = null;
   localStorage.removeItem("forsa_coupon");
 
-  // ===== استنى ثانيتين قبل التحويل =====
   setTimeout(() => {
     window.location.href = 'order-confirmation.html';
   }, 2000);
@@ -674,12 +674,10 @@ function liveSearch() {
   `).join("");
 }
 
-// ========== SEARCH (fallback) ==========
 function openSearch() {
   openSearchModal();
 }
 
-// ========== UI ==========
 function toggleMenu() {
   const nav = document.getElementById("mobile-nav");
   if (nav) nav.classList.toggle("open");
@@ -699,7 +697,6 @@ function showToast(msg, isError = false) {
   }, 2500);
 }
 
-// ========== SCROLL ==========
 window.addEventListener("scroll", () => {
   const header = document.getElementById("header");
   if (!header) return;
@@ -707,7 +704,6 @@ window.addEventListener("scroll", () => {
   else header.classList.remove("scrolled");
 });
 
-// ========== COUPON SYSTEM ==========
 async function applyCoupon() {
   const input = document.getElementById("coupon-input");
   const btn = document.getElementById("coupon-apply-btn");
@@ -838,7 +834,6 @@ function loadCouponFromStorage() {
   }
 }
 
-// ========== INIT ==========
 loadData();
 updateCart();
 loadCouponFromStorage();
