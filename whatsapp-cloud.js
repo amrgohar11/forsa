@@ -1,96 +1,123 @@
 // ============================================
-// FORSA - WhatsApp Cloud API Client
+// FORSA - WhatsApp Client (WAHA)
 // ============================================
 
-const WA_API_ENDPOINT = "/api/send-whatsapp";
+// ===== إعدادات WAHA =====
+const WAHA_API_URL = "https://waha-production-d9a5.up.railway.app"; // ← رابطك من Railway
+const WAHA_API_KEY = "wak_Y7YT0G3YZC1LJWGS"; // ← الـ API Key بتاعك
 
-// ===== إرسال رسالة عبر WhatsApp Cloud API =====
+// ===== إرسال رسالة عبر WAHA =====
 async function sendWhatsAppMessage(phone, message, template, params) {
   if (!phone) {
     return { success: false, error: "Missing phone" };
   }
 
-  if (!template && !message) {
-    return { success: false, error: "Missing message or template" };
+  if (!message) {
+    return { success: false, error: "Missing message" };
   }
 
   try {
-    const body = {
-      to: phone
-    };
+    // تنسيق رقم الموبايل لـ WAHA (لازم ينتهي بـ @c.us)
+    const chatId = `${phone.replace(/\D/g, "")}@c.us`;
 
-    if (template) {
-      body.template = template;
-      body.params = params || [];
-    } else {
-      body.message = message;
-    }
-
-    const response = await fetch(WA_API_ENDPOINT, {
+    const response = await fetch(`${WAHA_API_URL}/api/sendText`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "X-Api-Key": WAHA_API_KEY
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify({
+        session: "default",
+        chatId: chatId,
+        text: message
+      })
     });
 
     const data = await response.json();
 
-    if (data.success) {
-      console.log("✅ WhatsApp sent:", data.messageId);
-      return { success: true, messageId: data.messageId };
+    if (response.ok) {
+      console.log("✅ WhatsApp sent via WAHA:", data.id);
+      return { success: true, messageId: data.id };
     } else {
-      console.warn("⚠️ WhatsApp failed:", data.error);
-      return { success: false, error: data.error };
+      console.warn("⚠️ WAHA failed:", data);
+      return { success: false, error: data.message || "Unknown error" };
     }
   } catch (error) {
-    console.error("❌ WhatsApp network error:", error);
+    console.error("❌ WAHA network error:", error);
     return { success: false, error: error.message };
   }
 }
 
-// ===== إرسال تأكيد الطلب عبر Template =====
+// ===== إرسال تأكيد الطلب =====
 async function sendOrderConfirmation(phone, order) {
   const itemsText = (order.items || [])
-    .map(item => `${item.name} × ${item.qty}`)
-    .join(", ");
+    .map(item => `• ${item.name} × ${item.qty} = ${item.price * item.qty} ج`)
+    .join("\n");
 
   const trackUrl = `https://forsa-store.vercel.app/track.html?id=${order.orderNumber}`;
 
-  // ✅ 9 متغيرات عشان تطابق القالب اللي في Meta
-  return sendWhatsAppMessage(phone, null, "order_confirmation", [
-    order.name || "عميل",
-    String(order.orderNumber || ""),
-    itemsText || "منتجات",
-    String(order.subtotal || 0),
-    String(order.shipping || 0),
-    String(order.total || 0),
-    order.address || "-",
-    order.city || "-",
-    trackUrl
-  ]);
+  const message =
+`🛒 *طلبك على FORSA تم بنجاح!*
+
+أهلاً ${order.name} 👋
+
+طلبك رقم *#${order.orderNumber}* وصلنا.
+
+*📦 تفاصيل الطلب:*
+${itemsText}
+
+💰 *الإجمالي:* ${order.subtotal} ج
+🚚 *الشحن:* ${order.shipping} ج
+🧾 *الإجمالي النهائي:* ${order.total} ج
+
+📍 *العنوان:* ${order.address} - ${order.city}
+
+🔗 تتبع طلبك من هنا:
+${trackUrl}
+
+—
+FORSA - لُقطة تستاهلها 🎯`;
+
+  return sendWhatsAppMessage(phone, message);
 }
 
-// ===== إرسال إشعار الشحن عبر Template =====
+// ===== إرسال إشعار الشحن =====
 async function sendOrderShipped(phone, order) {
   const trackUrl = `https://forsa-store.vercel.app/track.html?id=${order.orderNumber}`;
   const deliveryDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
     .toLocaleDateString("ar-EG", { day: "numeric", month: "long", year: "numeric" });
 
-  return sendWhatsAppMessage(phone, null, "order_shipped", [
-    order.name || "عميل",
-    String(order.orderNumber || ""),
-    deliveryDate,
-    trackUrl
-  ]);
+  const message =
+`🚚 *طلبك رقم #${order.orderNumber} في الطريق!*
+
+أهلاً ${order.name} 👋
+
+طلبك اتبعت مع المندوب، وهتستلمه خلال 1-2 يوم إن شاء الله.
+
+📅 *التسليم المتوقع:* ${deliveryDate}
+
+🔗 تتبع طلبك من هنا:
+${trackUrl}
+
+—
+FORSA - لُقطة تستاهلها 🎯`;
+
+  return sendWhatsAppMessage(phone, message);
 }
 
-// ===== إرسال إشعار التسليم عبر Template =====
+// ===== إرسال إشعار التسليم =====
 async function sendOrderDelivered(phone, order) {
-  return sendWhatsAppMessage(phone, null, "order_delivered", [
-    order.name || "عميل",
-    String(order.orderNumber || "")
-  ]);
+  const message =
+`✅ *مبروك يا ${order.name}! استلمت طلبك رقم #${order.orderNumber}*
+
+نتمنى تكون مبسوط بالطلب. لو عندك أي استفسار، إحنا موجودين على واتساب.
+
+شكراً لثقتك في FORSA 💚
+
+—
+FORSA - لُقطة تستاهلها 🎯`;
+
+  return sendWhatsAppMessage(phone, message);
 }
 
 // ===== بناء رسالة تأكيد الطلب (نص عادي - fallback) =====
