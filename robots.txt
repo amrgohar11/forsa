@@ -1,4 +1,19 @@
+# ============================================
+# FORSA - Robots.txt
+# ============================================
+
 User-agent: *
 Allow: /
 
+# ===== Disallow admin & private pages =====
+Disallow: /admin.html
+Disallow: /admin.js
+Disallow: /admin-orders.js
+Disallow: /admin-coupons.js
+Disallow: /admin-categories.js
+Disallow: /admin-blog.js
+Disallow: /login.html
+Disallow: /firebase.js
+
+# ===== Sitemap =====
 Sitemap: https://forsa-store.vercel.app/sitemap.xml
