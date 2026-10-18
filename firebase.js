@@ -655,6 +655,9 @@ ${order.notes ? "\n📝 *ملاحظات:* " + order.notes : ""}
 
 🕐 ${new Date().toLocaleString("ar-EG")}`;
 
+    // ⏳ تأخير بسيط عشان نمنع تكديس الرسايل في CallMeBot
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
     const url = `https://api.callmebot.com/whatsapp.php?phone=${ADMIN_PHONE}&text=${encodeURIComponent(message)}&apikey=${ADMIN_API_KEY}`;
 
     await fetch(url, { mode: "no-cors" });
