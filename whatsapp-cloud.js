@@ -51,11 +51,23 @@ async function sendWhatsAppMessage(phone, message, template, params) {
 
 // ===== إرسال تأكيد الطلب عبر Template =====
 async function sendOrderConfirmation(phone, order) {
-  // ✅ بنبعت 3 متغيرات بس عشان تطابق القالب اللي إحنا عملناه في Meta
+  const itemsText = (order.items || [])
+    .map(item => `${item.name} × ${item.qty}`)
+    .join(", ");
+
+  const trackUrl = `https://forsa-store.vercel.app/track.html?id=${order.orderNumber}`;
+
+  // ✅ 9 متغيرات عشان تطابق القالب اللي في Meta
   return sendWhatsAppMessage(phone, null, "order_confirmation", [
     order.name || "عميل",
     String(order.orderNumber || ""),
-    String(order.total || 0)
+    itemsText || "منتجات",
+    String(order.subtotal || 0),
+    String(order.shipping || 0),
+    String(order.total || 0),
+    order.address || "-",
+    order.city || "-",
+    trackUrl
   ]);
 }
 
