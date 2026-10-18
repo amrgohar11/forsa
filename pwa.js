@@ -6,7 +6,7 @@
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("/sw.js")
+      .register("/sw.js?v=5") // ✅ تم إضافة رقم إصدار لكسر الكاش
       .then(registration => {
         console.log("✅ PWA: Service Worker registered", registration.scope);
       })

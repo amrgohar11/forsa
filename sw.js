@@ -1,11 +1,11 @@
 // ============================================
-// FORSA Service Worker - PWA (v4)
+// FORSA Service Worker - PWA (v5)
 // الشبكة أولاً للـ HTML والـ JS
 // ============================================
 
-const CACHE_VERSION = "forsa-v4";
-const STATIC_CACHE = "forsa-static-v4";
-const DYNAMIC_CACHE = "forsa-dynamic-v4";
+const CACHE_VERSION = "forsa-v5";
+const STATIC_CACHE = "forsa-static-v5";
+const DYNAMIC_CACHE = "forsa-dynamic-v5";
 
 const PRECACHE_URLS = [
   "/",
