@@ -586,6 +586,8 @@ async function saveOrderToFirebase(orderData) {
 // ========== SEND ORDER ==========
 async function sendWhatsApp(e) {
   e.preventDefault();
+  console.log("🔥 الزرار اتداس! هنبدأ نحفظ الطلب...");
+
   const name = document.getElementById("name").value;
   const phone = document.getElementById("phone").value;
   const address = document.getElementById("address").value;
@@ -595,9 +597,9 @@ async function sendWhatsApp(e) {
   const payment = paymentInput ? paymentInput.value : "cod";
 
   const paymentNames = {
-    cod: "الدفع عند الاستلام",
-    instapay: "انستاباي",
-    vodafone: "فودافون كاش"
+    cod: "💵 الدفع عند الاستلام",
+    instapay: "⚡ انستاباي",
+    vodafone: "📱 فودافون كاش"
   };
 
   let subtotal = 0;
@@ -621,6 +623,29 @@ async function sendWhatsApp(e) {
     icon: item.icon || "📦"
   }));
 
+  // ✅ ولّد رقم الطلب
+  const orderNumber = Math.floor(100000 + Math.random() * 900000);
+  const savedCoupon = appliedCoupon;
+
+  // ✅ احفظ الطلب وافحص النتيجة
+  const savedOrderId = await saveOrderToFirebase({
+    orderNumber,
+    name, phone, address, city, notes, payment,
+    items: orderItems,
+    subtotal,
+    shipping: SHIPPING,
+    total,
+    discount: discount,
+    couponCode: savedCoupon ? savedCoupon.code : null,
+    paymentMethod: paymentNames[payment]
+  });
+
+  // 🚨 لو الحفظ فشل، قف هنا واعرض رسالة
+  if (!savedOrderId) {
+    showToast("تعذر تسجيل الطلب. بياناتك لم تُحفظ، حاول مرة تانية.", true);
+    return;
+  }
+
   if (typeof fbq !== "undefined") {
     const numItems = cart.reduce((s, i) => s + i.qty, 0);
     fbq('track', 'Purchase', {
@@ -630,19 +655,13 @@ async function sendWhatsApp(e) {
     });
   }
 
-  await saveOrderToFirebase({
-    name, phone, address, city, notes, payment,
-    items: orderItems,
-    subtotal,
-    shipping: SHIPPING,
-    total,
-    discount: discount,
-    couponCode: appliedCoupon ? appliedCoupon.code : null,
-    paymentMethod: paymentNames[payment]
-  });
-
-  if (appliedCoupon && typeof fbIncrementCouponUsage === "function") {
-    await fbIncrementCouponUsage(appliedCoupon.code);
+  if (savedCoupon && typeof fbIncrementCouponUsage === "function") {
+    try {
+      await fbIncrementCouponUsage(savedCoupon.code);
+      console.log("✅ تم زيادة عدّاد الكوبون:", savedCoupon.code);
+    } catch (err) {
+      console.error("❌ فشل زيادة عدّاد الكوبون:", err);
+    }
   }
 
   document.getElementById("checkout-form").reset();
@@ -657,12 +676,15 @@ async function sendWhatsApp(e) {
   updateCart();
   toggleCart();
 
-  const orderNumber = Math.floor(100000 + Math.random() * 900000);
   const orderForConfirmation = {
     orderNumber: orderNumber,
     createdAt: Date.now(),
     items: orderItems,
+    subtotal: subtotal,
     shipping: SHIPPING,
+    discount: discount,
+    total: total,
+    couponCode: savedCoupon ? savedCoupon.code : null,
     name: name,
     phone: phone,
     address: address,
@@ -671,10 +693,24 @@ async function sendWhatsApp(e) {
 
   localStorage.setItem('forsa_last_order', JSON.stringify(orderForConfirmation));
 
+  if (typeof sendOrderConfirmation === "function") {
+    console.log("📤 جاري إرسال تأكيد الطلب عبر Template...");
+    sendOrderConfirmation(phone, orderForConfirmation)
+      .then(result => console.log("✅ WhatsApp result:", result))
+      .catch(err => console.error("❌ WhatsApp error:", err));
+  } else if (typeof sendWhatsAppMessage === "function") {
+    const confirmationMsg = buildOrderConfirmationMessage(orderForConfirmation);
+    console.log("📤 Fallback: إرسال رسالة نصية...");
+    sendWhatsAppMessage(phone, confirmationMsg).catch(console.warn);
+  }
+
   appliedCoupon = null;
   localStorage.removeItem("forsa_coupon");
 
-  window.location.href = 'order-confirmation.html';
+  // ✅ استنى 5 ثواني عشان نضمن إن الحفظ والواتساب يخلصوا
+  setTimeout(() => {
+    window.location.replace('order-confirmation.html');
+  }, 5000);
 }
 
 // ========== REVIEWS ==========
