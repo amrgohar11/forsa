@@ -601,9 +601,15 @@ async function saveOrderToFirebase(orderData) {
 
   if (orderId) {
     console.log("✅ تم حفظ الطلب في Firebase برقم:", orderId, "| orderNumber:", orderData.orderNumber);
+    
+    // ✅ إرسال الإشعار للأدمن
     if (typeof sendAdminNotification === "function") {
+      console.log("📤 جاري إرسال إشعار الأدمن...");
       sendAdminNotification(orderData);
+    } else {
+      console.warn("⚠️ دالة sendAdminNotification مش موجودة");
     }
+    
     return orderId;
   } else {
     console.warn("⚠️ فشل حفظ الطلب في Firebase");
