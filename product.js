@@ -1,5 +1,5 @@
 // ========== COUPON STATE ==========
-let appliedCoupon = null;
+let productPageCoupon = null; // ✅ غيرنا الاسم عشان ميتعارضش مع script.js
 
 let allData = { categories: [], products: [] };
 let cart = JSON.parse(localStorage.getItem("forsa_cart") || "[]");
