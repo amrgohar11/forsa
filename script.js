@@ -71,20 +71,19 @@ async function loadData() {
 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
 
-        // ✨ التعديل هنا: يبص على الصفحة اللي إحنا فيها
+        // ✨ التعديل هنا: يبص على الصفحة اللي إحنا فيها ويرسم المنتجات
         setTimeout(() => {
-          if (typeof applyFilters === "function") {
+          if (document.getElementById("shop-grid")) {
             populateCategories();
             applyFilters();
-          } else {
+          } else if (document.getElementById("products-carousel")) {
             renderCategories();
             renderProducts();
           }
           observeFadeUp();
         }, 100);
-        return;
-        observeFadeUp();
-        return;
+        
+        return; // ✅ السطر ده بس اللي يفضل
       }
     } catch (e) {
       console.warn("Firebase فشل، هنستخدم localStorage:", e);
@@ -104,10 +103,10 @@ async function loadData() {
     }
   }
   
-  if (typeof applyFilters === "function") {
+  if (document.getElementById("shop-grid")) {
     populateCategories();
     applyFilters();
-  } else {
+  } else if (document.getElementById("products-carousel")) {
     renderCategories();
     renderProducts();
   }
@@ -347,7 +346,7 @@ function toggleFav(e, id) {
   }
   localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
   
-  if (typeof applyFilters === "function" && document.getElementById("shop-grid")) {
+  if (document.getElementById("shop-grid")) {
     applyFilters();
   } else {
     renderProducts();
