@@ -603,9 +603,10 @@ async function sendWhatsApp(e) {
   appliedCoupon = null;
   localStorage.removeItem("forsa_coupon");
 
+  // ✅ استنى 4 ثواني عشان نضمن إن الحفظ والواتساب يخلصوا
   setTimeout(() => {
     window.location.href = 'order-confirmation.html';
-  }, 2000);
+  }, 4000);
 }
 
 // ========== LIVE SEARCH ==========
