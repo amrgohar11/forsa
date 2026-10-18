@@ -1,5 +1,4 @@
 // ========== CONFIG ==========
-const WHATSAPP_NUMBER = "201556687455";
 const SHIPPING = 40;
 const STORAGE_KEY = "forsa_products";
 const FAV_KEY = "forsa_favorites";
