@@ -741,10 +741,10 @@ async function sendWhatsApp(e) {
   appliedCoupon = null;
   localStorage.removeItem("forsa_coupon");
 
-  // ✅ استنى 5 ثواني عشان نضمن إن الحفظ والواتساب يخلصوا
+  // ✅ استنى 3 ثواني عشان نضمن إن الحفظ والواتساب يخلصوا
   setTimeout(() => {
     window.location.replace('order-confirmation.html');
-  }, 5000);
+  }, 3000);
 }
 
 // ========== LIVE SEARCH ==========
