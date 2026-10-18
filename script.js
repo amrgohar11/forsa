@@ -479,6 +479,8 @@ async function saveOrderToFirebase(orderData) {
 // ========== SEND ORDER ==========
 async function sendWhatsApp(e) {
   e.preventDefault();
+  console.log("🔥 الزرار اتداس! هنبدأ نحفظ الطلب..."); // ✅ سطر جديد
+
   const name = document.getElementById("name").value;
   const phone = document.getElementById("phone").value;
   const address = document.getElementById("address").value;
@@ -603,8 +605,8 @@ async function sendWhatsApp(e) {
   appliedCoupon = null;
   localStorage.removeItem("forsa_coupon");
 
-  // ✅ استنى 4 ثواني عشان نضمن إن الحفظ والواتساب يخلصوا
-  // ✅ نستنى 5 ثواني، وبعدين نروح لصفحة التأكيد
+  // ✅ استنى 5 ثواني عشان نضمن إن الحفظ والواتساب يخلصوا
+  // ✅ ثم استخدم replace بدل href عشان نمنع الـ Refresh
   setTimeout(() => {
     window.location.replace('order-confirmation.html');
   }, 5000);
