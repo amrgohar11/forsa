@@ -738,6 +738,7 @@ async function sendWhatsApp(e) {
   };
 
   localStorage.setItem('forsa_last_order', JSON.stringify(orderForConfirmation));
+  localStorage.setItem('forsa_last_order_number', orderNumber); // ✅ حفظ رقم الطلب
 
   // 🚀 إرسال الواتساب في الخلفية (من غير ما يعطل التحويل)
   if (typeof sendOrderConfirmation === "function") {
@@ -755,8 +756,8 @@ async function sendWhatsApp(e) {
   appliedCoupon = null;
   localStorage.removeItem("forsa_coupon");
 
-  // ✅ حول فوراً لصفحة التأكيد (الحفظ خلص خلاص)
-  window.location.replace('order-confirmation.html');
+  // ✅ حول فوراً لصفحة التأكيد (ومعاك رقم الطلب في الرابط)
+  window.location.replace(`order-confirmation.html?id=${orderNumber}`);
 }
 
 // ========== LIVE SEARCH ==========
