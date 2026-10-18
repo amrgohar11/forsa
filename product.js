@@ -1,9 +1,4 @@
 // ========== CONFIG ==========
-const SHIPPING = 40;
-const STORAGE_KEY = "forsa_products";
-const FAV_KEY = "forsa_favorites";
-const CART_KEY = "forsa_cart";
-
 const PAYMENT_INFO = {
   instapay: "01061863235",
   vodafone: "01061863235"
@@ -13,8 +8,8 @@ const PAYMENT_INFO = {
 let appliedCoupon = null;
 
 let allData = { categories: [], products: [] };
-let cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
-let favorites = JSON.parse(localStorage.getItem(FAV_KEY) || "[]");
+let cart = JSON.parse(localStorage.getItem("forsa_cart") || "[]");
+let favorites = JSON.parse(localStorage.getItem("forsa_favorites") || "[]");
 let currentProduct = null;
 let currentQty = 1;
 let urlParams = new URLSearchParams(window.location.search);
@@ -51,7 +46,7 @@ async function loadData() {
           products: fbProducts,
           categories: fbCategories || []
         };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+        localStorage.setItem("forsa_products", JSON.stringify(allData));
       }
     } catch (e) {
       console.warn("Firebase فشل، هنستخدم localStorage:", e);
@@ -59,14 +54,14 @@ async function loadData() {
   }
 
   if (!allData.products || allData.products.length === 0) {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem("forsa_products");
     if (saved) {
       allData = JSON.parse(saved);
     } else {
       try {
         const res = await fetch("products.json");
         allData = await res.json();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+        localStorage.setItem("forsa_products", JSON.stringify(allData));
       } catch (e) {
         allData = { categories: [], products: [] };
       }
@@ -419,7 +414,7 @@ function toggleFav(id, event) {
     favorites.push(id);
     showToast("❤️ تم إضافة المنتج للمفضلة");
   }
-  localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
+  localStorage.setItem("forsa_favorites", JSON.stringify(favorites));
   const favBtn = document.querySelector(".gallery-fav");
   if (favBtn) {
     const isFav = favorites.includes(id);
@@ -455,8 +450,8 @@ function updateCart() {
   if (cart.length === 0) {
     cartItems.innerHTML = '<p class="empty-cart">🛒 السلة فاضية</p>';
     if (subtotalEl) subtotalEl.textContent = "0";
-    if (totalEl) totalEl.textContent = SHIPPING;
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    if (totalEl) totalEl.textContent = 40;
+    localStorage.setItem("forsa_cart", JSON.stringify(cart));
     return;
   }
 
@@ -486,10 +481,10 @@ function updateCart() {
     if (discountRow) discountRow.style.display = "none";
   }
 
-  const finalTotal = Math.max(0, subtotal + SHIPPING - discount);
+  const finalTotal = Math.max(0, subtotal + 40 - discount);
   if (totalEl) totalEl.textContent = finalTotal;
 
-  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  localStorage.setItem("forsa_cart", JSON.stringify(cart));
 }
 
 function toggleCart() {
@@ -614,7 +609,7 @@ async function sendWhatsApp(e) {
     discount = appliedCoupon.discount;
   }
 
-  const total = Math.max(0, subtotal + SHIPPING - discount);
+  const total = Math.max(0, subtotal + 40 - discount);
 
   const orderItems = cart.map(item => ({
     id: item.id,
@@ -635,7 +630,7 @@ async function sendWhatsApp(e) {
     name, phone, address, city, notes, payment,
     items: orderItems,
     subtotal,
-    shipping: SHIPPING,
+    shipping: 40,
     total,
     discount: discount,
     couponCode: savedCoupon ? savedCoupon.code : null,
@@ -674,7 +669,7 @@ async function sendWhatsApp(e) {
 
   closeCheckout(null, true);
   cart = [];
-  localStorage.removeItem(CART_KEY);
+  localStorage.removeItem("forsa_cart");
   updateCart();
   toggleCart();
 
@@ -683,7 +678,7 @@ async function sendWhatsApp(e) {
     createdAt: Date.now(),
     items: orderItems,
     subtotal: subtotal,
-    shipping: SHIPPING,
+    shipping: 40,
     discount: discount,
     total: total,
     couponCode: savedCoupon ? savedCoupon.code : null,
@@ -989,7 +984,7 @@ function toggleFavRelated(e, id) {
     favorites.push(id);
     showToast("❤️ تم إضافة المنتج للمفضلة");
   }
-  localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
+  localStorage.setItem("forsa_favorites", JSON.stringify(favorites));
   renderRelated();
 }
 
@@ -1128,7 +1123,6 @@ async function applyCoupon() {
       return;
     }
 
-    // ===== احصل على رقم الموبايل لو موجود =====
     const phoneInput = document.getElementById("phone");
     const customerPhone = phoneInput ? phoneInput.value.trim() : "";
 
