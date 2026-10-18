@@ -6,8 +6,8 @@ let productPageCart = JSON.parse(localStorage.getItem("forsa_cart") || "[]");
 let productPageFavorites = JSON.parse(localStorage.getItem("forsa_favorites") || "[]");
 let currentProduct = null;
 let currentQty = 1;
-let urlParams = new URLSearchParams(window.location.search);
-let productId = urlParams.get("id");
+let productPageUrlParams = new URLSearchParams(window.location.search);
+let productId = productPageUrlParams.get("id");
 
 // ========== OBSERVER FOR FADE-UP ==========
 function observeFadeUp() {
