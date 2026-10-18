@@ -107,7 +107,6 @@
       <span class="sep">•</span>
       <span>⚡ توصيل سريع خلال 48 ساعة</span>
         <span class="sep">•</span>
-        <!-- نسخة مكررة للـ Loop -->
         <span>🚚 شحن 40 جنيه لكل المحافظات</span>
         <span class="sep">•</span>
         <span>⚡ عروض حصرية كل أسبوع</span>
@@ -443,7 +442,11 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase.js"></script>
 
-  <script src="product.js"></script>
+  <!-- ✅ إضافة script.js عشان product.js يشتغل صح -->
+  <script src="script.js?v=2026"></script>
+  
+  <!-- ✅ إضافة ?v=4 لكسر الكاش -->
+  <script src="product.js?v=4"></script>
   <script src="whatsapp-cloud.js"></script>
   <script src="animations.js"></script>
   <script src="pwa.js"></script>
