@@ -1,5 +1,5 @@
 // ========== ORDERS PAGE — بحث برقم الطلب ==========
-const WHATSAPP_NUMBER = "201556687455";
+// ✅ تمت إزالة const WHATSAPP_NUMBER لمنع التعارض مع script.js
 
 // ========== SEARCH ORDER BY NUMBER ==========
 async function searchOrders() {
@@ -181,7 +181,7 @@ function showEmptyState(message) {
       <div class="empty-icon">📭</div>
       <h3>${message}</h3>
       <p>لو عندك أي استفسار، كلمنا على واتساب.</p>
-      <a href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank" class="btn-primary" style="display:inline-flex; margin-top:16px;">
+      <a href="https://wa.me/201556687455" target="_blank" class="btn-primary" style="display:inline-flex; margin-top:16px;">
         💬 تواصل معانا
       </a>
     </div>
