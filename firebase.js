@@ -10,7 +10,7 @@ const firebaseConfig = {
 
 // ========== ADMIN SETTINGS ==========
 const ADMIN_PHONE = "201556687455";
-const ADMIN_API_KEY = "6976391";
+const ADMIN_API_KEY = "6976391"; // اتحفظناها هنا لو احتجناها بعدين
 
 // ========== INITIALIZE FIREBASE ==========
 let db = null;
@@ -627,8 +627,9 @@ async function fbIncrementBlogPostViews(id) {
 
 // ========== SEND WHATSAPP NOTIFICATION TO ADMIN ==========
 async function sendAdminNotification(order) {
-  if (!ADMIN_API_KEY || ADMIN_API_KEY === "ضع_API_KEY_هنا") {
-    console.warn("⚠️ Admin API Key مش موجود - مش هيتم إرسال الإشعار");
+  // ✅ إرسال الإشعار من خلال WhatsApp Cloud API (نفس اللي بيبعت للعميل)
+  if (typeof sendWhatsAppMessage !== "function") {
+    console.warn("⚠️ دالة sendWhatsAppMessage مش موجودة، الإشعار مش هيتبعت");
     return;
   }
 
@@ -655,14 +656,10 @@ ${order.notes ? "\n📝 *ملاحظات:* " + order.notes : ""}
 
 🕐 ${new Date().toLocaleString("ar-EG")}`;
 
-    // ⏳ تأخير بسيط عشان نمنع تكديس الرسايل في CallMeBot
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    const url = `https://api.callmebot.com/whatsapp.php?phone=${ADMIN_PHONE}&text=${encodeURIComponent(message)}&apikey=${ADMIN_API_KEY}`;
-
-    await fetch(url, { mode: "no-cors" });
-
-    console.log("✅ تم إرسال الإشعار على واتساب");
+    // إرسال الرسالة باستخدام دالة الـ API بتاعة Meta
+    await sendWhatsAppMessage(ADMIN_PHONE, message);
+    
+    console.log("✅ تم إرسال إشعار الأدمن عبر WhatsApp Cloud API");
   } catch (e) {
     console.error("❌ فشل إرسال الإشعار:", e);
   }
