@@ -24,6 +24,7 @@ let allData = { categories: [], products: [] };
 let cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
 let favorites = JSON.parse(localStorage.getItem(FAV_KEY) || "[]");
 let currentTab = "new";
+let urlParams = new URLSearchParams(window.location.search);
 
 // ========== LOADER ==========
 window.addEventListener("load", () => {
@@ -70,8 +71,14 @@ async function loadData() {
 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
 
-        renderCategories();
-        renderProducts();
+        // ✨ التعديل هنا: يبص على الصفحة اللي إحنا فيها
+        if (typeof applyFilters === "function") {
+          populateCategories();
+          applyFilters();
+        } else {
+          renderCategories();
+          renderProducts();
+        }
         observeFadeUp();
         return;
       }
@@ -92,8 +99,14 @@ async function loadData() {
       allData = { categories: [], products: [] };
     }
   }
-  renderCategories();
-  renderProducts();
+  
+  if (typeof applyFilters === "function") {
+    populateCategories();
+    applyFilters();
+  } else {
+    renderCategories();
+    renderProducts();
+  }
   observeFadeUp();
 }
 
@@ -197,6 +210,121 @@ function scrollCarousel(dir) {
   c.scrollBy({ left: dir * amount * 2, behavior: "smooth" });
 }
 
+// ========== SHOP PAGE FUNCTIONS (NEW) ==========
+function populateCategories() {
+  const select = document.getElementById("shop-cat-filter");
+  if (!select) return;
+  select.innerHTML = '<option value="">كل الأقسام</option>' +
+    allData.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
+
+  const catFromUrl = urlParams.get("cat");
+  if (catFromUrl) select.value = catFromUrl;
+
+  const searchFromUrl = urlParams.get("search");
+  if (searchFromUrl) {
+    const searchInput = document.getElementById("shop-search-input");
+    if (searchInput) searchInput.value = searchFromUrl;
+  }
+}
+
+function applyFilters() {
+  const grid = document.getElementById("shop-grid");
+  if (!grid) return;
+
+  const searchInput = document.getElementById("shop-search-input");
+  const catSelect = document.getElementById("shop-cat-filter");
+  const sortSelect = document.getElementById("shop-sort-filter");
+  
+  if (!searchInput || !catSelect || !sortSelect) return;
+
+  const search = searchInput.value.toLowerCase().trim();
+  const cat = catSelect.value;
+  const sort = sortSelect.value;
+
+  let products = [...allData.products];
+
+  if (cat) products = products.filter(p => p.category === cat);
+  if (search) {
+    products = products.filter(p =>
+      p.name.toLowerCase().includes(search) ||
+      (p.description && p.description.toLowerCase().includes(search))
+    );
+  }
+
+  switch (sort) {
+    case "price-asc": products.sort((a, b) => a.price - b.price); break;
+    case "price-desc": products.sort((a, b) => b.price - a.price); break;
+    case "offers": products = products.filter(p => p.oldPrice && p.oldPrice > p.price); break;
+    case "new":
+    default: products.sort((a, b) => b.id - a.id); break;
+  }
+
+  renderGrid(products);
+}
+
+function renderGrid(products) {
+  const grid = document.getElementById("shop-grid");
+  const empty = document.getElementById("shop-empty");
+  const count = document.getElementById("results-count");
+  if (!grid || !empty || !count) return;
+
+  count.textContent = products.length;
+
+  if (products.length === 0) {
+    grid.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+
+  empty.style.display = "none";
+
+  grid.innerHTML = products.map(p => {
+    const cat = allData.categories.find(c => c.id === p.category);
+    const isFav = favorites.includes(p.id);
+    return `
+      <div class="product-card fade-up">
+        ${p.badge ? `<span class="product-badge">${p.badge}</span>` : ""}
+        <button class="fav-btn ${isFav ? "active" : ""}" onclick="toggleFav(event, ${p.id})" title="مفضلة">
+          ${isFav ? "❤️" : "🤍"}
+        </button>
+        <a href="product.html?id=${p.id}" class="product-img-link">
+          <div class="product-img">
+            ${p.image
+              ? `<img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.parentElement.innerHTML='${p.icon || "📦"}'" />`
+              : (p.icon || "📦")}
+          </div>
+        </a>
+        <div class="product-info">
+          <div class="product-cat">${cat ? cat.name : ""}</div>
+          <a href="product.html?id=${p.id}" class="product-title-link">
+            <h3>${p.name}</h3>
+          </a>
+          <div class="product-price">
+            <span class="price-current">${p.price} جنيه</span>
+            ${p.oldPrice && p.oldPrice > p.price ? `<span class="price-old">${p.oldPrice} جنيه</span>` : ""}
+          </div>
+          <div class="product-actions">
+            <button class="add-btn" onclick="addToCart(${p.id}, event)">🛒 أضف للسلة</button>
+            <button class="order-now-btn" onclick="orderNow(${p.id}, event)">⚡ اطلب الآن</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  observeFadeUp();
+}
+
+function resetFilters() {
+  const searchInput = document.getElementById("shop-search-input");
+  const catSelect = document.getElementById("shop-cat-filter");
+  const sortSelect = document.getElementById("shop-sort-filter");
+  if (searchInput) searchInput.value = "";
+  if (catSelect) catSelect.value = "";
+  if (sortSelect) sortSelect.value = "new";
+  applyFilters();
+}
+
 // ========== FAVORITES ==========
 function toggleFav(e, id) {
   e.stopPropagation();
@@ -214,7 +342,12 @@ function toggleFav(e, id) {
     showToast("❤️ تم إضافة المنتج للمفضلة");
   }
   localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
-  renderProducts();
+  
+  if (typeof applyFilters === "function" && document.getElementById("shop-grid")) {
+    applyFilters();
+  } else {
+    renderProducts();
+  }
 }
 
 function showFavorites() {
