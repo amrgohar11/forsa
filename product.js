@@ -10,7 +10,7 @@ const PAYMENT_INFO = {
   vodafone: "01061863235"
 };
 
-// ========== COUPON STATE (لازم يكون فوق) ==========
+// ========== COUPON STATE ==========
 let appliedCoupon = null;
 
 let allData = { categories: [], products: [] };
@@ -37,6 +37,9 @@ function observeFadeUp() {
 
 // ========== LOAD DATA ==========
 async function loadData() {
+  // ✅ استنى شوية عشان نضمن إن script.js حمل البيانات
+  await new Promise(resolve => setTimeout(resolve, 300));
+
   if (typeof initFirebase === "function" && initFirebase()) {
     try {
       const [fbProducts, fbCategories] = await Promise.all([
