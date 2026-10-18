@@ -410,7 +410,8 @@
         </div>
 
         <div class="confirmation-actions" style="margin-top: 32px;">
-          <a href="orders.html" class="btn-primary">📦 تتبع طلبي</a>
+          <!-- ✅ تم تعديل الزرار عشان ياخد رقم الطلب -->
+          <a href="#" id="track-order-btn" class="btn-primary">📦 تتبع طلبي</a>
           <a href="https://wa.me/201556687455" target="_blank" class="btn-secondary">💬 تواصل واتساب</a>
         </div>
 
@@ -512,6 +513,16 @@
       setTimeout(() => {
         localStorage.removeItem('forsa_last_order');
       }, 5000);
+
+      // ===== ✅ ربط زرار "تتبع طلبي" برقم الطلب =====
+      const trackBtn = document.getElementById('track-order-btn');
+      if (trackBtn && orderData.orderNumber) {
+        // بياخد رقم الطلب ويروح لصفحة التتبع مباشرة
+        trackBtn.href = `track.html?id=${orderData.orderNumber}`;
+      } else if (trackBtn) {
+        // لو مفيش رقم (احتياطي)، يروح لصفحة البحث العادية
+        trackBtn.href = 'orders.html';
+      }
     });
   </script>
 
