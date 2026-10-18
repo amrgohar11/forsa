@@ -5,16 +5,14 @@
 // ===== تسجيل Service Worker =====
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    // navigator.serviceWorker.register("/sw.js?v=5")
-    //   .then(registration => {
-    //     console.log("✅ PWA: Service Worker registered", registration.scope);
-    //   })
-    //   .catch(error => {
-    //     console.warn("⚠️ PWA: Service Worker failed", error);
-    //   });
-
-    // 🚨 تم تعليق الـ Service Worker مؤقتاً للتأكد من سبب البطء في التحويل
-    console.log("🛑 PWA: Service Worker is disabled for testing.");
+    navigator.serviceWorker
+      .register("/sw.js?v=6") // ✅ تم تحديث رقم الإصدار لـ v6
+      .then(registration => {
+        console.log("✅ PWA: Service Worker registered", registration.scope);
+      })
+      .catch(error => {
+        console.warn("⚠️ PWA: Service Worker failed", error);
+      });
   });
 }
 
