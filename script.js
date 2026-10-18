@@ -71,7 +71,6 @@ async function loadData() {
 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
 
-        // ✨ التعديل هنا: يبص على الصفحة اللي إحنا فيها ويرسم المنتجات
         setTimeout(() => {
           if (document.getElementById("shop-grid")) {
             populateCategories();
@@ -83,7 +82,7 @@ async function loadData() {
           observeFadeUp();
         }, 100);
         
-        return; // ✅ السطر ده بس اللي يفضل
+        return;
       }
     } catch (e) {
       console.warn("Firebase فشل، هنستخدم localStorage:", e);
@@ -617,6 +616,15 @@ async function sendWhatsApp(e) {
   e.preventDefault();
   console.log("🔥 الزرار اتداس! هنبدأ نحفظ الطلب...");
 
+  // ✨ كود إظهار علامة التحميل
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  let originalBtnText = "✅ تأكيد الطلب";
+  if (submitBtn) {
+    originalBtnText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'جاري تأكيد الطلب... <span class="btn-loading-spinner"></span>';
+  }
+
   const name = document.getElementById("name").value;
   const phone = document.getElementById("phone").value;
   const address = document.getElementById("address").value;
@@ -676,6 +684,10 @@ async function sendWhatsApp(e) {
   // 🚨 لو الحفظ فشل، قف هنا واعرض رسالة
   if (!savedOrderId) {
     showToast("تعذر تسجيل الطلب. بياناتك لم تُحفظ، حاول مرة تانية.", true);
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnText;
+    }
     return;
   }
 
