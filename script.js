@@ -72,13 +72,17 @@ async function loadData() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
 
         // ✨ التعديل هنا: يبص على الصفحة اللي إحنا فيها
-        if (typeof applyFilters === "function") {
-          populateCategories();
-          applyFilters();
-        } else {
-          renderCategories();
-          renderProducts();
-        }
+        setTimeout(() => {
+          if (typeof applyFilters === "function") {
+            populateCategories();
+            applyFilters();
+          } else {
+            renderCategories();
+            renderProducts();
+          }
+          observeFadeUp();
+        }, 100);
+        return;
         observeFadeUp();
         return;
       }
@@ -968,6 +972,8 @@ function loadCouponFromStorage() {
   }
 }
 
-loadData();
-updateCart();
-loadCouponFromStorage();
+document.addEventListener("DOMContentLoaded", () => {
+  loadData();
+  updateCart();
+  loadCouponFromStorage();
+});
