@@ -78,6 +78,9 @@ async function loadData() {
           } else if (document.getElementById("products-carousel")) {
             renderCategories();
             renderProducts();
+          } else if (document.getElementById("product-detail")) {
+            // صفحة المنتج - مش محتاجين نعمل حاجة هنا، product.js هيتصرف
+            console.log("📦 صفحة المنتج - البيانات جاهزة");
           }
           observeFadeUp();
         }, 100);
@@ -212,7 +215,7 @@ function scrollCarousel(dir) {
   c.scrollBy({ left: dir * amount * 2, behavior: "smooth" });
 }
 
-// ========== SHOP PAGE FUNCTIONS (NEW) ==========
+// ========== SHOP PAGE FUNCTIONS ==========
 function populateCategories() {
   const select = document.getElementById("shop-cat-filter");
   if (!select) return;
