@@ -604,9 +604,10 @@ async function sendWhatsApp(e) {
   localStorage.removeItem("forsa_coupon");
 
   // ✅ استنى 4 ثواني عشان نضمن إن الحفظ والواتساب يخلصوا
+  // ✅ نستنى 5 ثواني، وبعدين نروح لصفحة التأكيد
   setTimeout(() => {
-    window.location.href = 'order-confirmation.html';
-  }, 4000);
+    window.location.replace('order-confirmation.html');
+  }, 5000);
 }
 
 // ========== LIVE SEARCH ==========
