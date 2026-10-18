@@ -739,6 +739,7 @@ async function sendWhatsApp(e) {
 
   localStorage.setItem('forsa_last_order', JSON.stringify(orderForConfirmation));
 
+  // 🚀 إرسال الواتساب في الخلفية (من غير ما يعطل التحويل)
   if (typeof sendOrderConfirmation === "function") {
     console.log("📤 جاري إرسال تأكيد الطلب عبر Template...");
     sendOrderConfirmation(phone, orderForConfirmation)
@@ -749,14 +750,13 @@ async function sendWhatsApp(e) {
     console.log("📤 Fallback: إرسال رسالة نصية...");
     sendWhatsAppMessage(phone, confirmationMsg).catch(console.warn);
   }
+  // (الكود ده هيشتغل في الخلفية ومش هيستنى التحويل)
 
   appliedCoupon = null;
   localStorage.removeItem("forsa_coupon");
 
-  // ✅ استنى 3 ثواني عشان نضمن إن الحفظ والواتساب يخلصوا
-  setTimeout(() => {
-    window.location.replace('order-confirmation.html');
-  }, 3000);
+  // ✅ حول فوراً لصفحة التأكيد (الحفظ خلص خلاص)
+  window.location.replace('order-confirmation.html');
 }
 
 // ========== LIVE SEARCH ==========
