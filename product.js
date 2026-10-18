@@ -1,9 +1,3 @@
-// ========== CONFIG ==========
-const PAYMENT_INFO = {
-  instapay: "01061863235",
-  vodafone: "01061863235"
-};
-
 // ========== COUPON STATE ==========
 let appliedCoupon = null;
 
@@ -530,18 +524,19 @@ function updatePaymentInfo() {
   const infoEl = document.getElementById("payment-info");
   if (!infoEl) return;
 
+  // ✅ استخدام PAYMENT_INFO من script.js
   const infos = {
     cod: "",
     instapay: `
       <strong>⚡ انستاباي</strong><br>
       حوّل المبلغ على الرقم ده:<br>
-      <span class="payment-number">${PAYMENT_INFO.instapay}</span><br>
+      <span class="payment-number">${typeof PAYMENT_INFO !== "undefined" ? PAYMENT_INFO.instapay : "01061863235"}</span><br>
       <small>وابعتها سكرين شوت على واتساب بعد تأكيد الطلب.</small>
     `,
     vodafone: `
       <strong>📱 فودافون كاش</strong><br>
       حوّل المبلغ على الرقم ده:<br>
-      <span class="payment-number">${PAYMENT_INFO.vodafone}</span><br>
+      <span class="payment-number">${typeof PAYMENT_INFO !== "undefined" ? PAYMENT_INFO.vodafone : "01061863235"}</span><br>
       <small>وابعتها سكرين شوت على واتساب بعد تأكيد الطلب.</small>
     `
   };
