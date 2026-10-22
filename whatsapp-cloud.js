@@ -5,7 +5,7 @@
 // ===== إعدادات OpenWA =====
 const OPENWA_API_URL = "http://localhost:2785"; // البورت الصح بتاع السيرفر
 const OPENWA_API_KEY = "owa_k1_f4d6b5f62d7db5099645e9ab7eeea0a7223cff7c09a8a969938b24806971b7df";
-const OPENWA_SESSION = "forsa-bot"; // اسم الجلسة
+const OPENWA_SESSION = "859504f8-ef2a-44ae-b484-f1ac20b7ae57"; // اسم الجلسة
 
 // ===== إرسال رسالة عبر OpenWA =====
 async function sendWhatsAppMessage(phone, message) {
