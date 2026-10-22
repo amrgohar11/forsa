@@ -3,12 +3,12 @@
 // ============================================
 
 // ===== إعدادات OpenWA =====
-const OPENWA_API_URL = "http://localhost:2785"; // ← بورت OpenWA اللي شغال عندك
-const OPENWA_API_KEY = "owa_k1_f4d6b5f62d7db5099645e9ab7eeea0a7223cff7c09a8a969938b24806971b7df"; // ← المفتاح بتاعك
-const OPENWA_SESSION = "forsa-bot"; // ← اسم الجلسة اللي عملتها في الداشبورد
+const OPENWA_API_URL = "http://localhost:2785"; // البورت الصح بتاع السيرفر
+const OPENWA_API_KEY = "owa_k1_f4d6b5f62d7db5099645e9ab7eeea0a7223cff7c09a8a969938b24806971b7df";
+const OPENWA_SESSION = "forsa-bot"; // اسم الجلسة
 
 // ===== إرسال رسالة عبر OpenWA =====
-async function sendWhatsAppMessage(phone, message, template, params) {
+async function sendWhatsAppMessage(phone, message) {
   if (!phone) {
     return { success: false, error: "Missing phone" };
   }
@@ -24,6 +24,9 @@ async function sendWhatsAppMessage(phone, message, template, params) {
     if (cleanPhone.startsWith('0')) {
       cleanPhone = '20' + cleanPhone.substring(1);
     }
+    
+    // إضافة @c.us عشان OpenWA يقبل الإرسال
+    const chatId = `${cleanPhone}@c.us`;
 
     const response = await fetch(`${OPENWA_API_URL}/api/sessions/${OPENWA_SESSION}/messages/send-text`, {
       method: "POST",
@@ -32,7 +35,7 @@ async function sendWhatsAppMessage(phone, message, template, params) {
         "X-API-Key": OPENWA_API_KEY
       },
       body: JSON.stringify({
-        to: cleanPhone,
+        chatId: chatId, // ضفنا @c.us هنا
         text: message
       })
     });
