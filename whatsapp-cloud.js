@@ -3,7 +3,7 @@
 // ============================================
 
 // ===== إعدادات OpenWA =====
-const OPENWA_API_URL = "http://localhost:2886"; // ← بورت OpenWA اللي شغال عندك
+const OPENWA_API_URL = "http://localhost:2785"; // ← بورت OpenWA اللي شغال عندك
 const OPENWA_API_KEY = "owa_k1_f4d6b5f62d7db5099645e9ab7eeea0a7223cff7c09a8a969938b24806971b7df"; // ← المفتاح بتاعك
 const OPENWA_SESSION = "forsa-bot"; // ← اسم الجلسة اللي عملتها في الداشبورد
 
