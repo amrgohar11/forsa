@@ -1,12 +1,13 @@
 // ============================================
-// FORSA - WhatsApp Client (WAHA)
+// FORSA - WhatsApp Client (OpenWA Local)
 // ============================================
 
-// ===== إعدادات WAHA =====
-const WAHA_API_URL = "https://waha-production-d9a5.up.railway.app"; // ← رابطك من Railway
-const WAHA_API_KEY = "wak_Y7YT0G3YZC1LJWGS"; // ← الـ API Key بتاعك
+// ===== إعدادات OpenWA =====
+const OPENWA_API_URL = "http://localhost:2886"; // ← بورت OpenWA اللي شغال عندك
+const OPENWA_API_KEY = "owa_k1_f4d6b5f62d7db5099645e9ab7eeea0a7223cff7c09a8a969938b24806971b7df"; // ← المفتاح بتاعك
+const OPENWA_SESSION = "forsa-bot"; // ← اسم الجلسة اللي عملتها في الداشبورد
 
-// ===== إرسال رسالة عبر WAHA =====
+// ===== إرسال رسالة عبر OpenWA =====
 async function sendWhatsAppMessage(phone, message, template, params) {
   if (!phone) {
     return { success: false, error: "Missing phone" };
@@ -17,18 +18,21 @@ async function sendWhatsAppMessage(phone, message, template, params) {
   }
 
   try {
-    // تنسيق رقم الموبايل لـ WAHA (لازم ينتهي بـ @c.us)
-    const chatId = `${phone.replace(/\D/g, "")}@c.us`;
+    // تنسيق رقم الموبايل (شيل أي حاجة مش رقم)
+    let cleanPhone = phone.toString().replace(/\D/g, "");
+    // لو الرقم مبدوء بـ 0 مصري، نحوله لـ 20
+    if (cleanPhone.startsWith('0')) {
+      cleanPhone = '20' + cleanPhone.substring(1);
+    }
 
-    const response = await fetch(`${WAHA_API_URL}/api/sendText`, {
+    const response = await fetch(`${OPENWA_API_URL}/api/sessions/${OPENWA_SESSION}/messages/send-text`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Api-Key": WAHA_API_KEY
+        "X-API-Key": OPENWA_API_KEY
       },
       body: JSON.stringify({
-        session: "default",
-        chatId: chatId,
+        to: cleanPhone,
         text: message
       })
     });
@@ -36,14 +40,14 @@ async function sendWhatsAppMessage(phone, message, template, params) {
     const data = await response.json();
 
     if (response.ok) {
-      console.log("✅ WhatsApp sent via WAHA:", data.id);
-      return { success: true, messageId: data.id };
+      console.log("✅ WhatsApp sent via OpenWA:", data.messageId);
+      return { success: true, messageId: data.messageId };
     } else {
-      console.warn("⚠️ WAHA failed:", data);
+      console.warn("⚠️ OpenWA failed:", data);
       return { success: false, error: data.message || "Unknown error" };
     }
   } catch (error) {
-    console.error("❌ WAHA network error:", error);
+    console.error("❌ OpenWA network error:", error);
     return { success: false, error: error.message };
   }
 }
